@@ -5,12 +5,17 @@
 class CGame {
 	bool theGameIsRunning = false;
 public:
-	void RunThisAwesomeGame() 
+	CGame& RunThisAwesomeGame() 
 	{
 		std::cout << "Wolphins are awsome" << std::endl;
-		theGameIsRunning = true; 
+		theGameIsRunning = true;
+		return *this;
 	}
 
+	void PrintThisShit() {
+		std::cout << "Printing shit" << std::endl;
+		std::cout << "Done prinitng shit!" << std::endl;
+	}
 
 };
 
@@ -18,7 +23,7 @@ void main() {
 	
 	CGame game;
 
-	game.RunThisAwesomeGame();
+	game.RunThisAwesomeGame().PrintThisShit();
 	system("PAUSE");
 
 }
