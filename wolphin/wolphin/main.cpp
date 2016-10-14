@@ -2,17 +2,25 @@
 #define THIS_IS_THE_START_OF_OUR_GAME_GUYS 0x13333337
 #include <iostream>
 
-class Game {
+class CGame {
 	bool theGameIsRunning = false;
 public:
-	void RunThisAwesomeGame() { theGameIsRunning = true; }
+	void RunThisAwesomeGame() 
+	{
+		std::cout << "Wolphins are awsome" << std::endl;
+		theGameIsRunning = true; 
+	}
+
+
 };
 
 void main() {
-	Game game;
-	std::cout << "Wolphins are awsome" << std::endl;
+	
+	CGame game;
+
 	game.RunThisAwesomeGame();
 	system("PAUSE");
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
