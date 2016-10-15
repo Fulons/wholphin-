@@ -175,4 +175,35 @@ namespace wholphin {
 
 }	//namespace wolphin
 
+#else
+
+namespace wholphin {
+	bool Context::Init() {
+		glfwInit();
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		window = glfwCreateWindow(800, 600, "OPENGL_TEST", nullptr, nullptr);
+		if (!window) OutErrorMessage("Could not create glfw window");
+		glfwMakeContextCurrent(window);
+		glewExperimental = GL_TRUE;
+		GLenum err = glewInit();
+		if (err != GLEW_OK) return OutErrorMessage((std::string("GLEW INIT ERROR:") + (char*)glewGetErrorString(err)).c_str());
+		glfwSwapInterval(1);
+		return true;
+	}
+
+	int Context::Run() {
+		{
+			while (!glfwWindowShouldClose(window)) {
+				Update(0);
+				Render();
+				glfwSwapBuffers(window);
+				glfwPollEvents();
+			}
+			glfwTerminate();
+			return 0;
+		}
+	}
+}
+
 #endif

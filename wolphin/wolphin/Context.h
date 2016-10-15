@@ -60,25 +60,8 @@ namespace wholphin {
 namespace wholphin {
 	class Context {
 	public:
-		virtual bool Init() {
-			glfwInit();
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-			window = glfwCreateWindow(800, 600, "OPENGL_TEST", nullptr, nullptr);
-			glfwMakeContextCurrent(window);
-			glewInit();
-			glfwSwapInterval(1);
-			return true;
-		}
-		int Run() {
-			while (!glfwWindowShouldClose(window)) {
-				Update(0);
-				Render();
-				glfwSwapBuffers(window);
-				glfwPollEvents();
-			}
-			return 0;
-		}
+		virtual bool Init();
+		int Run();
 		virtual bool Update(float dt) = 0;
 		virtual bool Render() = 0;
 	private:

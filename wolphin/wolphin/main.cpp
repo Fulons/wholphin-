@@ -124,6 +124,8 @@ bool TestApplication::Init() {
 	GLuint indices[] = { 0, 1, 2,
 						 0, 2, 3};
 
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -136,6 +138,7 @@ bool TestApplication::Init() {
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)sizeof(glm::vec2));
 
 
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	return true;
 }
 
@@ -146,9 +149,11 @@ bool TestApplication::Update(float dt) {
 }
 
 bool TestApplication::Render() {
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	shaderProg.Use();
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -162,5 +167,3 @@ int main(char* argv[], int argc) {
 	system("PAUSE");
 	return result;
 }
-
-
