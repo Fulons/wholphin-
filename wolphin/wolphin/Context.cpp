@@ -13,6 +13,7 @@ bool _OutErrorMessage(const char* errorMessage, int line, char* file) {
 	//MessageBox(nullptr, )
 	return false;
 }
+
 #ifndef USE_GLFW_
 namespace {
 	wholphin::Context* g_Context = nullptr;
