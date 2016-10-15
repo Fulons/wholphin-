@@ -41,7 +41,19 @@ namespace wholphin {
 	}
 
 	LRESULT Context::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)	{
-		return DefWindowProc(hWnd, msg, wParam, lParam);
+		switch (msg) {
+		case WM_SIZE: {
+			clientWidth = LOWORD(lParam);
+			clientHeight = HIWORD(lParam);
+			RECT r = {};
+			GetClientRect(hWnd, &r);
+			int w = r.right - r.left;
+			int h = r.bottom - r.top;
+			Resize(w, h);
+		}return 0;
+
+		default: DefWindowProc(hWnd, msg, wParam, lParam);
+		}
 	}
 
 	bool Context::Init() {
@@ -196,7 +208,10 @@ namespace wholphin {
 	int Context::Run() {
 		{
 			while (!glfwWindowShouldClose(window)) {
-				Update(0);
+				int width, height;
+				glfwGetFramebufferSize(window, &width, &height);
+				glViewport(0, 0, width, height);
+				Update(glfwGetTime());
 				Render();
 				glfwSwapBuffers(window);
 				glfwPollEvents();

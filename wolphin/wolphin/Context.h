@@ -21,6 +21,7 @@ namespace wholphin {
 		virtual bool Init();
 		virtual bool Update(float dt) = 0;
 		virtual bool Render() = 0;
+		virtual void Resize(int w, int h) = 0;
 
 		int Run();
 
