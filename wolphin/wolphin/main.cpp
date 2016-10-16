@@ -6,79 +6,12 @@
 #include <string>
 #include "Context.h"
 #include "Utilities.h"
-
-
-
-
-class Shader {
-public: 
-	void Init(const char* vsPath, const char* fsPath);
-	void Use() { glUseProgram(programID); }
-	GLuint GetLocation(const char* name) { return glGetUniformLocation(programID, name); }
-private:
-	GLuint programID;
-};
-
-void Shader::Init(const char * vsPath, const char * fsPath){
-	bool good = false;
-	std::string vs = wholphin::ReadFile(vsPath, &good);
-	if (!good) std::cout << "Could not read vertex shader: " << vsPath << std::endl;
-	std::string fs = wholphin::ReadFile(fsPath, &good);
-	if (!good) std::cout << "Could not read fragment shader: " << fsPath << std::endl;
-
-	GLint success;
-
-	const GLchar* vsFile = vs.c_str();
-	GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vsID, 1, &vsFile, nullptr);
-	glCompileShader(vsID);
-	glGetShaderiv(vsID, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		GLchar infoLog[512];
-		glGetShaderInfoLog(vsID, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILES\n" << infoLog << std::endl;
-		glDeleteShader(vsID);
-		return;
-	}
-
-	const GLchar* fsFile = fs.c_str();
-	GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fsID, 1, &fsFile, nullptr);
-	glCompileShader(fsID);
-	glGetShaderiv(fsID, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		GLchar infoLog[512];
-		glGetShaderInfoLog(fsID, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILES\n" << infoLog << std::endl;
-		glDeleteShader(vsID);
-		glDeleteShader(fsID);
-		return;
-	}
-
-	programID = glCreateProgram();
-	glAttachShader(programID, fsID);
-	glAttachShader(programID, vsID);
-	glLinkProgram(programID);
-	glGetProgramiv(programID, GL_LINK_STATUS, &success);
-	if (!success) {
-		GLchar infoLog[512];
-		glGetProgramInfoLog(programID, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-		glDetachShader(programID, fsID);
-		glDetachShader(programID, vsID);
-		glDeleteShader(vsID);
-		glDeleteShader(fsID);
-		glDeleteProgram(programID);
-		programID = 0;
-		return;
-	}
-	glDeleteShader(vsID);
-	glDeleteShader(fsID);
-}
+#include "Grid.h"
+#include "Shader.h"
 
 class TestApplication : public wholphin::Context {
 public:
-	TestApplication() : wholphin::Context(){}
+	TestApplication() : wholphin::Context(), grid(glm::ivec2(10, 10)){}
 	virtual bool Init() override;
 	virtual bool Update(float dt) override;
 	virtual bool Render() override;
@@ -87,7 +20,7 @@ private:
 	GLuint VBO;
 	GLuint IBO;
 	GLuint VAO;
-	Shader shaderProg;
+	wholphin::Shader shaderProg;
 
 	glm::mat4 modelMatrix;	
 	GLuint modelMatrixLocation;
@@ -95,6 +28,7 @@ private:
 	GLuint viewMatrixLocation;
 	glm::mat4 projectionMatrix;
 	GLuint projectionMatrixLocation;
+	wholphin::Grid grid;
 };
 
 struct Vertex {
@@ -138,9 +72,11 @@ bool TestApplication::Init() {
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)sizeof(glm::vec2));
-
+	glBindVertexArray(0);
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+
+	grid.Init();
 	return true;
 }
 
@@ -152,6 +88,7 @@ bool TestApplication::Update(float dt) {
 bool TestApplication::Render() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	shaderProg.Use();
+	grid.Draw(modelMatrixLocation);
 	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
@@ -159,6 +96,7 @@ bool TestApplication::Render() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	return true;
@@ -166,7 +104,7 @@ bool TestApplication::Render() {
 
 void TestApplication::Resize(int w, int h){
 	glViewport(0, 0, w, h);
-	projectionMatrix = glm::ortho(-w/2.0f, w/2.0f, -h/2.0f, h/2.0f, -100.0f, 100.0f);
+	projectionMatrix = glm::ortho(-w/2.0f, w/2.0f, -h/2.0f, h/2.0f, -1000.0f, 1000.0f);
 	//glm::perspective(glm::radians(45.0f), (float)w / h, 0.1f, 100.0f);
 }
 
