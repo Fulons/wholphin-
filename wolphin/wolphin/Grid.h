@@ -5,6 +5,14 @@
 
 namespace wholphin {
 
+	struct Texture {
+		int width;
+		int height;
+		GLuint ID;
+	};
+
+	Texture LoadTexture(const char* file);
+
 	class Tile {
 	public:
 		Tile(short t, glm::vec2 p) : type(t), pos(p){}
@@ -23,9 +31,12 @@ namespace wholphin {
 		std::vector<Tile> tiles;
 		std::vector<glm::mat4> modelMatrix;
 	private:
+		Texture textureMap;
+		std::vector<glm::ivec2> texturePos;
 		GLuint VBO;
 		GLuint CBO;
 		GLuint IBO;
+		GLuint TBO;
 		GLuint VAO;
 	};
 
