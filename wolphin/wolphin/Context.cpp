@@ -220,11 +220,20 @@ namespace wholphin {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 		Resize(w, h);
-		while (!glfwWindowShouldClose(window)) {				
-			Update(glfwGetTime() / 200.0f);
+
+		double prevTime = glfwGetTime();
+		double currentTime;
+
+		while (!glfwWindowShouldClose(window)) {	
+
+			currentTime = glfwGetTime();
+			float deltaTime = currentTime - prevTime;
+
+			Update(deltaTime);
 			Render();
 			glfwSwapBuffers(window);
 			glfwPollEvents();
+			prevTime = currentTime;
 		}
 		glfwTerminate();
 		return 0;
