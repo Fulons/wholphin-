@@ -95,10 +95,10 @@ void Shader::Init(const char * vsPath, const char * fsPath){
 class TestApplication : public wholphin::Context {
 public:
 	TestApplication() : wholphin::Context(){}
-	virtual bool Init();
-	virtual bool Update(float dt);
-	virtual bool Render();
-	virtual void Resize(int w, int h);
+	virtual bool Init() override;
+	virtual bool Update(float dt) override;
+	virtual bool Render() override;
+	virtual void Resize(int w, int h) override;
 private:
 	GLuint VBO;
 	GLuint IBO;

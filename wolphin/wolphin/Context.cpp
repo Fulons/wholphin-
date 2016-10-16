@@ -190,7 +190,16 @@ namespace wholphin {
 
 #else
 
+
+
 namespace wholphin {
+
+	//This might be bad, when will glfw call this?
+	void windowSizeCallback(GLFWwindow* window, int width, int height) {
+		Context* context = (Context*)glfwGetWindowUserPointer(window);
+		context->Resize(width, height);
+	}
+
 	bool Context::Init() {
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -202,23 +211,23 @@ namespace wholphin {
 		GLenum err = glewInit();
 		if (err != GLEW_OK) return OutErrorMessage((std::string("GLEW INIT ERROR:") + (char*)glewGetErrorString(err)).c_str());
 		glfwSwapInterval(1);
+		glfwSetWindowSizeCallback(window, windowSizeCallback);
+		glfwSetWindowUserPointer(window, (void*)this);
 		return true;
 	}
 
 	int Context::Run() {
-		{
-			while (!glfwWindowShouldClose(window)) {
-				int width, height;
-				glfwGetFramebufferSize(window, &width, &height);
-				glViewport(0, 0, width, height);
-				Update(glfwGetTime());
-				Render();
-				glfwSwapBuffers(window);
-				glfwPollEvents();
-			}
-			glfwTerminate();
-			return 0;
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		Resize(w, h);
+		while (!glfwWindowShouldClose(window)) {				
+			Update(glfwGetTime() / 200.0f);
+			Render();
+			glfwSwapBuffers(window);
+			glfwPollEvents();
 		}
+		glfwTerminate();
+		return 0;
 	}
 }
 

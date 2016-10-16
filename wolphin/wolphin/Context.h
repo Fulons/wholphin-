@@ -65,6 +65,7 @@ namespace wholphin {
 		int Run();
 		virtual bool Update(float dt) = 0;
 		virtual bool Render() = 0;
+		virtual void Resize(int w, int h) = 0;
 	private:
 
 		GLFWwindow* window;
