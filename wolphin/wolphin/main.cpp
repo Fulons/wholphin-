@@ -3,28 +3,12 @@
 #include <iostream>
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
-#include <fstream>
-#include <sstream>
+#include <string>
 #include "Context.h"
+#include "Utilities.h"
 
 
-std::string ReadFile(const char* path, bool* good)
-{
-	std::ifstream file(path);
-	if (!file.is_open()) {
-		std::string str("Could not find file: ");
-		str += path;
-		OutErrorMessage(str.c_str());
-		if (good) *good = false;
-		return std::string();
-	}
 
-	std::stringstream ret;
-	ret << file.rdbuf();
-	file.close();
-	if (good) *good = true;
-	return ret.str();
-}
 
 class Shader {
 public: 
@@ -37,9 +21,9 @@ private:
 
 void Shader::Init(const char * vsPath, const char * fsPath){
 	bool good = false;
-	std::string vs = ReadFile(vsPath, &good);
+	std::string vs = wholphin::ReadFile(vsPath, &good);
 	if (!good) std::cout << "Could not read vertex shader: " << vsPath << std::endl;
-	std::string fs = ReadFile(fsPath, &good);
+	std::string fs = wholphin::ReadFile(fsPath, &good);
 	if (!good) std::cout << "Could not read fragment shader: " << fsPath << std::endl;
 
 	GLint success;

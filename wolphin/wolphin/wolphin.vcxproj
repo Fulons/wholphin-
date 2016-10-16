@@ -151,9 +151,11 @@
   <ItemGroup>
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h" />
+    <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fs.glsl" />

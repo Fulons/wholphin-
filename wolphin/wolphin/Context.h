@@ -6,9 +6,6 @@
 #include <Windows.h>
 #endif
 
-bool _OutErrorMessage(const char* errorMessage, int line = 0, char* file = nullptr);
-#define OutErrorMessage(errorMessage) _OutErrorMessage((errorMessage), __LINE__, __FILE__)
-
 #ifndef USE_GLFW_
 namespace wholphin {
 
@@ -67,7 +64,7 @@ namespace wholphin {
 		virtual bool Render() = 0;
 		virtual void Resize(int w, int h) = 0;
 	private:
-
+		unsigned frameCount = 0;
 		GLFWwindow* window;
 	};
 }

@@ -1,18 +1,6 @@
 #include "Context.h"
+#include "Utilities.h"
 #include <iostream>
-#include <sstream>
-
-
-bool _OutErrorMessage(const char* errorMessage, int line, char* file) {
-	if (file) {
-		if (line)	std::cout << "ERROR in: " << file << " @ line" << line << "\n";
-		else			std::cout << "ERROR in: " << file << "\n";		
-	}
-	else if (line) std::cout << "ERROR @ line:" << line << "\n";
-	std::cout << errorMessage << std::endl;
-	//MessageBox(nullptr, )
-	return false;
-}
 
 #ifndef USE_GLFW_
 namespace {
@@ -234,6 +222,7 @@ namespace wholphin {
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 			prevTime = currentTime;
+			frameCount++;
 		}
 		glfwTerminate();
 		return 0;
