@@ -23,7 +23,7 @@ namespace wholphin {
 		clientWidth = 800;
 		clientHeight = 600;
 		appTitle = "OPENGL EXAMPLE";
-		windowStyle = WS_OVERLAPPED | WS_SIZEBOX | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
+		windowStyle = WS_OVERLAPPED | WS_SIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
 		g_Context = this;
 		currentContext = this;
 	}
