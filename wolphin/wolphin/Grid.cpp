@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <soil\SOIL.h>
 #include "Utilities.h"
+#include "Noise.h"
 
 namespace wholphin {
 
@@ -115,7 +116,10 @@ namespace wholphin {
 		tiles.resize(size.x * size.y);
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
-				tiles[x + (y * size.x)] = Tile(short(rand() % 16), glm::vec2(x - size.x / 2, y - size.y / 2));
+				glm::vec2 perlinPos = glm::vec2(x, y) / (glm::vec2)size;
+				float pn = Perlin(perlinPos);
+				int tileType = (int)((pn + 1) * 6);
+				tiles[x + (y * size.x)] = Tile(tileType, glm::vec2(x - size.x / 2, y - size.y / 2));
 				modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
 			}
 		}

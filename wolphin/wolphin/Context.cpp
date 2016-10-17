@@ -186,7 +186,7 @@ namespace wholphin {
 	void windowSizeCallback(GLFWwindow* window, int width, int height) {
 		Context* context = (Context*)glfwGetWindowUserPointer(window);
 		context->Resize(width, height);
-	}
+	}	
 
 	bool Context::Init() {
 		glfwInit();

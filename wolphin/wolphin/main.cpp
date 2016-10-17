@@ -11,7 +11,7 @@
 
 class TestApplication : public wholphin::Context {
 public:
-	TestApplication() : wholphin::Context(), grid(glm::ivec2(10, 10)){}
+	TestApplication() : wholphin::Context(), grid(glm::ivec2(20, 20)){}
 	virtual bool Init() override;
 	virtual bool Update(float dt) override;
 	virtual bool Render() override;
