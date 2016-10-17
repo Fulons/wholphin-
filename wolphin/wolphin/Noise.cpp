@@ -42,7 +42,7 @@ namespace wholphin {
 
 	int fastFloor(float x) { return x >= 0 ? (int)x : (int)(x - 1); }
 	glm::ivec2 fastFloor(glm::vec2 x) { return glm::ivec2(fastFloor(x.x), fastFloor(x.y)); }
-	float lerp(float a, float b, float t) { return (1 - t)*a + b; }
+	float lerp(float a, float b, float t) { return (1 - t)*a + b * t; }
 	float fade(float x) { return x*x*x*(x*(x * 6 - 15) + 10); }
 
 	float Perlin(glm::vec2 in)	{
@@ -55,10 +55,10 @@ namespace wholphin {
 		int gradientIndex10 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 0]] % 8;
 		int gradientIndex11 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 1]] % 8;
 		
-		float noiseContribution00 = glm::dot(gradients[gradientIndex00], glm::vec2(in.x, in.y));
-		float noiseContribution01 = glm::dot(gradients[gradientIndex00], glm::vec2(in.x, in.y - 1));
-		float noiseContribution10 = glm::dot(gradients[gradientIndex00], glm::vec2(in.x - 1, in.y));
-		float noiseContribution11 = glm::dot(gradients[gradientIndex00], glm::vec2(in.x - 1, in.y - 1));
+		float noiseContribution00 = glm::dot(gradients[gradientIndex00], glm::vec2(relative.x, relative.y));
+		float noiseContribution01 = glm::dot(gradients[gradientIndex01], glm::vec2(relative.x, relative.y - 1));
+		float noiseContribution10 = glm::dot(gradients[gradientIndex10], glm::vec2(relative.x - 1, relative.y));
+		float noiseContribution11 = glm::dot(gradients[gradientIndex11], glm::vec2(relative.x - 1, relative.y - 1));
 
 		float u = fade(relative.x);
 		float v = fade(relative.y);

@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Noise.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="Context.h" />
     <ClInclude Include="Grid.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Noise.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Utilities.h" />

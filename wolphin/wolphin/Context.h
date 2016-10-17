@@ -6,6 +6,8 @@
 #include <Windows.h>
 #endif
 
+#include "InputHandler.h"
+
 #ifndef USE_GLFW_
 namespace wholphin {
 
@@ -50,6 +52,9 @@ namespace wholphin {
 		void CalculateFPS(float dt);
 
 		static Context* currentContext;
+
+	protected:
+		InputHandler inputHandler;
 	};
 }
 #else

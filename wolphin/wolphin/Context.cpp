@@ -39,8 +39,17 @@ namespace wholphin {
 			int h = r.bottom - r.top;
 			Resize(w, h);
 		}return 0;
+		case WM_KEYDOWN: {
+			inputHandler.KeyDown(wParam);
+		}return 0;
+		case WM_KEYUP: {
+			inputHandler.KeyUp(wParam);
+		}return 0;
+		case WM_DESTROY: {
+			PostQuitMessage(0);
+		}return 0;
 
-		default: DefWindowProc(hWnd, msg, wParam, lParam);
+		default: return DefWindowProc(hWnd, msg, wParam, lParam);
 		}
 	}
 

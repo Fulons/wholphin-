@@ -11,7 +11,7 @@
 
 class TestApplication : public wholphin::Context {
 public:
-	TestApplication() : wholphin::Context(), grid(glm::ivec2(20, 20)){}
+	TestApplication() : wholphin::Context(), grid(glm::ivec2(200, 200)){}
 	virtual bool Init() override;
 	virtual bool Update(float dt) override;
 	virtual bool Render() override;
@@ -29,6 +29,9 @@ private:
 	glm::mat4 projectionMatrix;
 	GLuint projectionMatrixLocation;
 	wholphin::Grid grid;
+
+	glm::vec3 lookAtCenter;
+	float zoom = 1.0f;
 };
 
 struct Vertex {
@@ -43,8 +46,8 @@ bool TestApplication::Init() {
 	glm::vec3 tiltVector;
 	//tiltVector = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
 	//tiltVector.z = 1.0f;
-	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f);
-	viewMatrix = glm::lookAt(tiltVector, glm::vec3(0.0f, 0.0f, 0.0f),  glm::vec3(1.0f, 1.0f, 0.0f));
+	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f) * zoom + lookAtCenter;
+	viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));
 	shaderProg.Init("Shaders\\vs.glsl", "Shaders\\fs.glsl");
 	shaderProg.Use();
 	modelMatrixLocation = shaderProg.GetLocation("m");
@@ -82,6 +85,38 @@ bool TestApplication::Init() {
 
 bool TestApplication::Update(float dt) {
 	modelMatrix = glm::rotate(modelMatrix, dt, glm::vec3(0.0f, 0.0f, 1.0f));
+	const static float speed = 1000.0f;
+	bool zoomThisUpdate = false;
+	if (inputHandler.IsDown('A')) {
+		lookAtCenter += glm::vec3(-1.0f, 1.0f, 0.0f) * dt * speed;
+	}
+	if (inputHandler.IsDown('D')) {
+		lookAtCenter += glm::vec3(1.0f, -1.0f, 0.0f) * dt * speed;
+	}
+	if (inputHandler.IsDown('W')) {
+		lookAtCenter += glm::vec3(1.0f, 1.0f, 0.0f) * dt * speed;
+	}
+	if (inputHandler.IsDown('S')) {
+		lookAtCenter += glm::vec3(-1.0f, -1.0f, 0.0f) * dt * speed;
+	}
+	if (inputHandler.IsDown('Q')) {
+		zoom += dt * 10;
+		zoomThisUpdate = true;
+	}
+	if (inputHandler.IsDown('E')) {
+		zoom -= dt * 10;
+		if (zoom <= 0) zoom = 0.1f;
+		zoomThisUpdate = true;
+	}
+	if (zoomThisUpdate) {
+		int w = GetClientWidth();
+		int h = GetClientHeight();
+		projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, -10000.0f, 10000.0f);
+	}
+
+	glm::vec3 tiltVector;
+	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f) * zoom + lookAtCenter;
+	viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));
 	return true;
 }
 
@@ -104,7 +139,7 @@ bool TestApplication::Render() {
 
 void TestApplication::Resize(int w, int h){
 	glViewport(0, 0, w, h);
-	projectionMatrix = glm::ortho(-w/2.0f, w/2.0f, -h/2.0f, h/2.0f, -1000.0f, 1000.0f);
+	projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, -10000.0f, 10000.0f);
 	//glm::perspective(glm::radians(45.0f), (float)w / h, 0.1f, 100.0f);
 }
 
@@ -112,6 +147,5 @@ int main(char* argv[], int argc) {
 	TestApplication test;
 	test.Init();
 	int result =  test.Run();
-	system("PAUSE");
 	return result;
 }

@@ -101,23 +101,15 @@ namespace wholphin {
 				UVs[(x + (y * 4)) * 4 + 2] = glm::vec2((x + 1) / 4.0f, (y + 1) / 4.0f);
 				UVs[(x + (y * 4)) * 4 + 3] = glm::vec2(x / 4.0f,		 (y + 1) / 4.0f);
 			}
-		}
-		for (unsigned x = 0; x < 4; x++) {
-			for (unsigned y = 0; y < 4; y++) {
-				UVs[(x + (y * 4)) * 4 + 0] = glm::vec2(x / 4.0f,		  y / 4.0f);
-				UVs[(x + (y * 4)) * 4 + 1] = glm::vec2((x + 1) / 4.0f,  y / 4.0f);
-				UVs[(x + (y * 4)) * 4 + 2] = glm::vec2((x + 1) / 4.0f, (y + 1) / 4.0f);
-				UVs[(x + (y * 4)) * 4 + 3] = glm::vec2(x / 4.0f,		 (y + 1) / 4.0f);
-			}
-		}
+		}		
 
 		textureMap = LoadTexture("tileMap.png");
 		modelMatrix.resize(size.x * size.y);
 		tiles.resize(size.x * size.y);
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
-				glm::vec2 perlinPos = glm::vec2(x, y) / (glm::vec2)size;
-				float pn = Perlin(perlinPos);
+				glm::vec2 perlinPos = glm::vec2(x - size.x / 2, y - size.y / 2) / (glm::vec2)size;
+				float pn = Perlin(perlinPos * 20.0f);
 				int tileType = (int)((pn + 1) * 6);
 				tiles[x + (y * size.x)] = Tile(tileType, glm::vec2(x - size.x / 2, y - size.y / 2));
 				modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
