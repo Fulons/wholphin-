@@ -11,6 +11,7 @@ namespace wholphin {
 		glm::vec2(-sinPiOver4, -sinPiOver4), glm::vec2(-1, 0), glm::vec2(-sinPiOver4, sinPiOver4), glm::vec2(0, 1)
 	};
 
+	//TODO: create a shuffle algorithm that shuffles this values good depending on a seed
 	static int permutation[] = {
 		151,160,137,91,90,15,
 		131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
@@ -39,7 +40,7 @@ namespace wholphin {
 		49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
 		138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180};
 
-	int fastFloor(float x) { return x > 0 ? (int)x : (int)(x - 1); }
+	int fastFloor(float x) { return x >= 0 ? (int)x : (int)(x - 1); }
 	glm::ivec2 fastFloor(glm::vec2 x) { return glm::ivec2(fastFloor(x.x), fastFloor(x.y)); }
 	float lerp(float a, float b, float t) { return (1 - t)*a + b; }
 	float fade(float x) { return x*x*x*(x*(x * 6 - 15) + 10); }
