@@ -58,7 +58,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\vs.glsl" />
-    <None Include="Shaders\fs.glsl" />
+    <None Include="Shaders\tilefs.glsl" />
+    <None Include="Shaders\tilevs.glsl" />
   </ItemGroup>
 </Project>

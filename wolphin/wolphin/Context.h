@@ -40,7 +40,6 @@ namespace wholphin {
 		DWORD windowStyle;
 		char* appTitle;
 		float FPS;
-		unsigned frameCount = 0;
 		float currentTime;
 
 	private:
@@ -54,6 +53,7 @@ namespace wholphin {
 		static Context* currentContext;
 
 	protected:
+		unsigned frameCount = 0;
 		InputHandler inputHandler;
 	};
 }

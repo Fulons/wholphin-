@@ -48,7 +48,7 @@ bool TestApplication::Init() {
 	//tiltVector.z = 1.0f;
 	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f) * zoom + lookAtCenter;
 	viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));
-	shaderProg.Init("Shaders\\vs.glsl", "Shaders\\fs.glsl");
+	shaderProg.Init("Shaders\\tilevs.glsl", "Shaders\\tilefs.glsl");
 	shaderProg.Use();
 	modelMatrixLocation = shaderProg.GetLocation("m");
 	viewMatrixLocation = shaderProg.GetLocation("v");
@@ -113,6 +113,8 @@ bool TestApplication::Update(float dt) {
 		int h = GetClientHeight();
 		projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, -10000.0f, 10000.0f);
 	}
+
+	grid.Update(frameCount);
 
 	glm::vec3 tiltVector;
 	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f) * zoom + lookAtCenter;

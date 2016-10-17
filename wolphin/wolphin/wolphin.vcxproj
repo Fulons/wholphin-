@@ -166,8 +166,8 @@
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\fs.glsl" />
-    <None Include="Shaders\vs.glsl" />
+    <None Include="Shaders\tilefs.glsl" />
+    <None Include="Shaders\tilevs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

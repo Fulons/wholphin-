@@ -6,9 +6,15 @@ namespace wholphin {
 	float sinPiOver4 = 0.70710678118f;
 
 
-	static glm::vec2 gradients[] = {
+	static glm::vec2 gradients2D[] = {
 		glm::vec2(+sinPiOver4, +sinPiOver4), glm::vec2(+1, 0), glm::vec2(sinPiOver4, -sinPiOver4), glm::vec2(0, -1),
 		glm::vec2(-sinPiOver4, -sinPiOver4), glm::vec2(-1, 0), glm::vec2(-sinPiOver4, sinPiOver4), glm::vec2(0, 1)
+	};
+
+	static glm::vec3 gradients3d[] = {
+		glm::vec3(1, 1, 0), glm::vec3(-1, +1, 0), glm::vec3(1, -1, +0), glm::vec3(-1, -1, +0),
+		glm::vec3(1, 0, 1), glm::vec3(-1, +0, 1), glm::vec3(1, +0, -1), glm::vec3(-1, +0, -1),
+		glm::vec3(0, 1, 1), glm::vec3(+0, -1, 1), glm::vec3(0, +1, -1), glm::vec3(+0, -1, -1)
 	};
 
 	//TODO: create a shuffle algorithm that shuffles this values good depending on a seed
@@ -42,6 +48,7 @@ namespace wholphin {
 
 	int fastFloor(float x) { return x >= 0 ? (int)x : (int)(x - 1); }
 	glm::ivec2 fastFloor(glm::vec2 x) { return glm::ivec2(fastFloor(x.x), fastFloor(x.y)); }
+	glm::ivec3 fastFloor(glm::vec3 x) { return glm::ivec3(fastFloor(x.x), fastFloor(x.y), fastFloor(x.z)); }
 	float lerp(float a, float b, float t) { return (1 - t)*a + b * t; }
 	float fade(float x) { return x*x*x*(x*(x * 6 - 15) + 10); }
 
@@ -55,10 +62,10 @@ namespace wholphin {
 		int gradientIndex10 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 0]] % 8;
 		int gradientIndex11 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 1]] % 8;
 		
-		float noiseContribution00 = glm::dot(gradients[gradientIndex00], glm::vec2(relative.x, relative.y));
-		float noiseContribution01 = glm::dot(gradients[gradientIndex01], glm::vec2(relative.x, relative.y - 1));
-		float noiseContribution10 = glm::dot(gradients[gradientIndex10], glm::vec2(relative.x - 1, relative.y));
-		float noiseContribution11 = glm::dot(gradients[gradientIndex11], glm::vec2(relative.x - 1, relative.y - 1));
+		float noiseContribution00 = glm::dot(gradients2D[gradientIndex00], glm::vec2(relative.x, relative.y));
+		float noiseContribution01 = glm::dot(gradients2D[gradientIndex01], glm::vec2(relative.x, relative.y - 1));
+		float noiseContribution10 = glm::dot(gradients2D[gradientIndex10], glm::vec2(relative.x - 1, relative.y));
+		float noiseContribution11 = glm::dot(gradients2D[gradientIndex11], glm::vec2(relative.x - 1, relative.y - 1));
 
 		float u = fade(relative.x);
 		float v = fade(relative.y);
@@ -69,4 +76,41 @@ namespace wholphin {
 		return lerp(xInterpolated0, xInterpolated1, v);
 	}
 
+	float Perlin(glm::vec3 in)	{
+		glm::ivec3 floor = fastFloor(in);
+		glm::vec3 relative = in - (glm::vec3)floor;
+		glm::ivec3 floorWrapped = glm::ivec3(floor.x & 255, floor.y & 255, floor.z & 255);
+
+		int gradientIndex000 = permutation[floorWrapped.x + 0 + permutation[floorWrapped.y + 0 + permutation[floorWrapped.z + 0]]] % 12;
+		int gradientIndex001 = permutation[floorWrapped.x + 0 + permutation[floorWrapped.y + 0 + permutation[floorWrapped.z + 1]]] % 12;
+		int gradientIndex010 = permutation[floorWrapped.x + 0 + permutation[floorWrapped.y + 1 + permutation[floorWrapped.z + 0]]] % 12;
+		int gradientIndex011 = permutation[floorWrapped.x + 0 + permutation[floorWrapped.y + 1 + permutation[floorWrapped.z + 1]]] % 12;
+		int gradientIndex100 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 0 + permutation[floorWrapped.z + 0]]] % 12;
+		int gradientIndex101 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 0 + permutation[floorWrapped.z + 1]]] % 12;
+		int gradientIndex110 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 1 + permutation[floorWrapped.z + 0]]] % 12;
+		int gradientIndex111 = permutation[floorWrapped.x + 1 + permutation[floorWrapped.y + 1 + permutation[floorWrapped.z + 1]]] % 12;
+
+		float noiseContribution000 = glm::dot(gradients3d[gradientIndex000], glm::vec3(relative.x - 0, relative.y - 0, relative.z - 0));
+		float noiseContribution001 = glm::dot(gradients3d[gradientIndex001], glm::vec3(relative.x - 0, relative.y - 0, relative.z - 1));
+		float noiseContribution010 = glm::dot(gradients3d[gradientIndex010], glm::vec3(relative.x - 0, relative.y - 1, relative.z - 0));
+		float noiseContribution011 = glm::dot(gradients3d[gradientIndex011], glm::vec3(relative.x - 0, relative.y - 1, relative.z - 1));
+		float noiseContribution100 = glm::dot(gradients3d[gradientIndex100], glm::vec3(relative.x - 1, relative.y - 0, relative.z - 0));
+		float noiseContribution101 = glm::dot(gradients3d[gradientIndex101], glm::vec3(relative.x - 1, relative.y - 0, relative.z - 1));
+		float noiseContribution110 = glm::dot(gradients3d[gradientIndex110], glm::vec3(relative.x - 1, relative.y - 1, relative.z - 0));
+		float noiseContribution111 = glm::dot(gradients3d[gradientIndex111], glm::vec3(relative.x - 1, relative.y - 1, relative.z - 1));
+
+		float u = fade(relative.x);
+		float v = fade(relative.y);
+		float w = fade(relative.z);
+
+		float xInterpolated00 = lerp(noiseContribution000, noiseContribution100, u);
+		float xInterpolated10 = lerp(noiseContribution010, noiseContribution110, u);
+		float xInterpolated01 = lerp(noiseContribution001, noiseContribution101, u);
+		float xInterpolated11 = lerp(noiseContribution011, noiseContribution111, u);
+
+		float xyInterpolated0 = lerp(xInterpolated00, xInterpolated10, v);
+		float xyInterpolated1 = lerp(xInterpolated01, xInterpolated11, v);
+
+		return lerp(xyInterpolated0, xyInterpolated1, w);
+	}
 }

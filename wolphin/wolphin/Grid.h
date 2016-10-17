@@ -25,6 +25,7 @@ namespace wholphin {
 	public:
 		Grid(glm::ivec2 size) : size(size){}
 		void Init();
+		void Update(int frameNumber);
 		void Draw(GLuint modelMatrixIndex);
 	private:
 		glm::ivec2 size;

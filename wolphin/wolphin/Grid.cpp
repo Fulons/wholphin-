@@ -109,7 +109,10 @@ namespace wholphin {
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
 				glm::vec2 perlinPos = glm::vec2(x - size.x / 2, y - size.y / 2) / (glm::vec2)size;
-				float pn = Perlin(perlinPos * 20.0f);
+				float pn = Perlin(perlinPos * 20.0f) * 0.5f;
+				pn += Perlin(perlinPos * 3.0f) * 1.5f;
+				pn += sin((float)x / size.x * glm::pi<float>() * 10);
+				pn /= 3.0f;
 				int tileType = (int)((pn + 1) * 6);
 				tiles[x + (y * size.x)] = Tile(tileType, glm::vec2(x - size.x / 2, y - size.y / 2));
 				modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
@@ -150,6 +153,24 @@ namespace wholphin {
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 		CheckGLError();
+	}
+
+	void Grid::Update(int frameNumber)	{
+		
+		float time = frameNumber / 100.0f;
+		for (int x = 0; x < size.x; x++) {
+			for (int y = 0; y < size.y; y++) {
+				glm::vec3 perlinPos = glm::vec3(glm::vec2(x - size.x / 2, y - size.y / 2) / (glm::vec2)size, time);
+				float pn = Perlin(perlinPos * 20.0f) * 0.5f;
+				pn += Perlin(perlinPos * 3.0f) * 1.5f;
+				pn += Perlin(perlinPos * 50.0f) * 0.5f;
+				//pn += sin((float)x / size.x * glm::pi<float>() * 10);
+				pn /= 2.5f;
+				int tileType = (int)((pn + 1) * 8);
+				tiles[x + (y * size.x)].type = tileType;
+				//modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
+			}
+		}
 	}
 
 	void Grid::Draw(GLuint modelMatrixIndex) {
