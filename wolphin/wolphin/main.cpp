@@ -75,7 +75,7 @@ bool TestApplication::Init() {
 	glBindVertexArray(0);
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-
+	CheckGLError();
 	grid.Init();
 	return true;
 }

@@ -101,6 +101,14 @@ namespace wholphin {
 				UVs[(x + (y * 4)) * 4 + 3] = glm::vec2(x / 4.0f,		 (y + 1) / 4.0f);
 			}
 		}
+		for (unsigned x = 0; x < 4; x++) {
+			for (unsigned y = 0; y < 4; y++) {
+				UVs[(x + (y * 4)) * 4 + 0] = glm::vec2(x / 4.0f,		  y / 4.0f);
+				UVs[(x + (y * 4)) * 4 + 1] = glm::vec2((x + 1) / 4.0f,  y / 4.0f);
+				UVs[(x + (y * 4)) * 4 + 2] = glm::vec2((x + 1) / 4.0f, (y + 1) / 4.0f);
+				UVs[(x + (y * 4)) * 4 + 3] = glm::vec2(x / 4.0f,		 (y + 1) / 4.0f);
+			}
+		}
 
 		textureMap = LoadTexture("tileMap.png");
 		modelMatrix.resize(size.x * size.y);
@@ -145,9 +153,11 @@ namespace wholphin {
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * UVs.size(), UVs.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+		CheckGLError();
 	}
 
 	void Grid::Draw(GLuint modelMatrixIndex) {
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureMap.ID);
 		for (unsigned i = 0; i < tiles.size(); i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
