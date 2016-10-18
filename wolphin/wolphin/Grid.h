@@ -2,6 +2,9 @@
 #include <glm\glm.hpp>
 #include <vector>
 #include <GL\glew.h>
+#include <assimp\Importer.hpp>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
 
 namespace wholphin {
 
@@ -10,6 +13,41 @@ namespace wholphin {
 		int height;
 		GLuint ID;
 	};
+
+	struct Vertex2D {
+		glm::vec2 pos;
+	};
+
+	struct Vertex3D {
+		glm::vec2 texCoords;
+		glm::vec3 pos;
+	};
+
+	struct Buffer {
+
+	};
+
+	struct SubMeshData {
+		std::vector<Vertex3D> vertices;
+		std::vector<GLuint> indices;
+		Texture texture;
+	};
+
+	class MeshData {
+	public:
+		bool Init(const char* filename);
+		void MakeBuffer();
+	private:
+		bool isInitialized = false;
+		std::vector<SubMeshData> subMeshes;
+		Buffer buffer;
+
+	private:
+		aiString directory;
+		void ProcessNode(aiNode* node, const aiScene* scene);
+		void ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene* scene);
+	};
+
 
 	Texture LoadTexture(const char* file);
 
@@ -32,6 +70,7 @@ namespace wholphin {
 		std::vector<Tile> tiles;
 		std::vector<glm::mat4> modelMatrix;
 	private:
+		MeshData meshData;
 		Texture textureMap;
 		std::vector<glm::ivec2> texturePos;
 		GLuint VBO;

@@ -5,6 +5,7 @@
 #include "Utilities.h"
 #include "Noise.h"
 
+
 namespace wholphin {
 
 	
@@ -85,13 +86,52 @@ namespace wholphin {
 		glm::vec3(0.0f, 0.5f, 0.0f), //dark green
 	};
 
-	
+	bool MeshData::Init(const char* filename) {		
+		Assimp::Importer import;
+		std::string file(filename);
+		const aiScene* scene = import.ReadFile(file, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-	struct Vertex {
-		glm::vec2 pos;
-	};
+		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+			return OutErrorMessage((std::string("Assimp error") + import.GetErrorString()).c_str());
+		}
+		directory = file.substr(0, file.find_last_of('\\'));
+		ProcessNode(scene->mRootNode, scene);
+	}
+
+	void MeshData::ProcessNode(aiNode* node, const aiScene* scene) {
+		for (GLuint i = 0; i < node->mNumMeshes; i++) {
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			subMeshes.push_back(SubMeshData());
+			ProcessMesh(subMeshes.back(), mesh, scene);
+		}
+		for (GLuint i = 0; i < node->mNumChildren; i++) {
+			ProcessNode(node->mChildren[i], scene);
+		}
+	}
+
+	void MeshData::ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene * scene)	{
+		for (GLuint i = 0; i < mesh->mNumVertices; i++) {
+			Vertex3D vertex;
+			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+			vertex.texCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+			subMesh.vertices.push_back(vertex);
+		}
+
+		if (mesh->mMaterialIndex >= 0) {
+			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+			GLuint textureCount = material->GetTextureCount(aiTextureType_AMBIENT);
+			aiString str;
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &directory);
+			subMesh.texture = LoadTexture(directory.C_Str());
+		}
+	}
+
+	void MeshData::MakeBuffer() {
+
+	}
 
 	void Grid::Init() {
+		meshData.Init("C:\\Users\\Fulons\\Desktop\\palmtree\\palmtree\\palm_tree.obj");
 		std::vector<glm::vec2> UVs;
 		UVs.resize(4 * 4 * 4);
 		for (unsigned x = 0; x < 4; x++) {
@@ -119,7 +159,7 @@ namespace wholphin {
 			}
 		}
 
-		Vertex vertices[] = {
+		Vertex2D vertices[] = {
 			glm::vec2(-0.5f, -0.5f),
 			glm::vec2(+0.5f, -0.5f),
 			glm::vec2(+0.5f, +0.5f),
@@ -138,7 +178,7 @@ namespace wholphin {
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (GLvoid*)0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -179,7 +219,7 @@ namespace wholphin {
 		for (unsigned i = 0; i < tiles.size(); i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (GLvoid*)0);
 
 			glBindBuffer(GL_ARRAY_BUFFER, CBO);
 			glEnableVertexAttribArray(2);
@@ -196,7 +236,5 @@ namespace wholphin {
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		}
 	}
-
-	
 
 }
