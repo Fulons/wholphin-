@@ -230,18 +230,28 @@ namespace wholphin {
 		CheckGLError();
 	}
 
-	void Grid::Update(int frameNumber)	{
+	void Grid::Update(float frameNumberFraction, int funkyness)	{
 		
-		float time = frameNumber / 100.0f;
+		float average;
+		switch (funkyness) {
+		case 1: average = 0.5f; break;
+		case 2: average = 2.0f; break;
+		case 3: average = 2.5f; break;
+		case 4: average = 3.5f; break;
+		case 5: average = 4.5f; break;
+		}
+
+		float time = frameNumberFraction;
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
 				glm::vec3 perlinPos = glm::vec3(glm::vec2(x - size.x / 2, y - size.y / 2) / (glm::vec2)size, time);
 				float pn = Perlin(perlinPos * 20.0f) * 0.5f;
-				pn += Perlin(perlinPos * 3.0f) * 1.5f;
-				pn += Perlin(perlinPos * 50.0f) * 0.5f;
-				//pn += sin((float)x / size.x * glm::pi<float>() * 10);
-				pn /= 2.5f;
-				int tileType = (int)((pn + 1) * 8);
+				if(funkyness > 1) pn += Perlin(perlinPos * 3.0f) * 1.5f;
+				if(funkyness > 2) pn += Perlin(perlinPos * 50.0f) * 0.5f;
+				if(funkyness > 3) pn += sin((float)x / size.x * glm::pi<float>() * 10);
+				if(funkyness > 4) pn += sin((float)y / size.y * glm::pi<float>() * 17);
+				pn /= average;
+				int tileType = (int)((pn + 1) * 9);
 				tiles[x + (y * size.x)].type = tileType;
 				//modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
 			}

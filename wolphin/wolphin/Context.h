@@ -69,6 +69,7 @@ namespace wholphin {
 		virtual bool Render() = 0;
 		virtual void Resize(int w, int h) = 0;
 	private:
+		InputHandler inputHandler;
 		unsigned frameCount = 0;
 		GLFWwindow* window;
 	};

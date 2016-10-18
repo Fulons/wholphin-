@@ -40,10 +40,10 @@ namespace wholphin {
 			Resize(w, h);
 		}return 0;
 		case WM_KEYDOWN: {
-			inputHandler.KeyDown(wParam);
+			inputHandler.KeyDown(wParam, frameCount);
 		}return 0;
 		case WM_KEYUP: {
-			inputHandler.KeyUp(wParam);
+			inputHandler.KeyUp(wParam, frameCount);
 		}return 0;
 		case WM_DESTROY: {
 			PostQuitMessage(0);
@@ -190,7 +190,7 @@ namespace wholphin {
 
 
 namespace wholphin {
-
+	//TODO: make keycallback function to fill inputHandler
 	//This might be bad, when will glfw call this?
 	void windowSizeCallback(GLFWwindow* window, int width, int height) {
 		Context* context = (Context*)glfwGetWindowUserPointer(window);

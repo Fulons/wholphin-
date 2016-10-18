@@ -37,6 +37,7 @@ private:
 
 	glm::vec3 lookAtCenter;
 	float zoom = 1.0f;
+	int funkyness = 1;
 };
 
 struct Vertex {
@@ -124,13 +125,17 @@ bool TestApplication::Update(float dt) {
 		if (zoom <= 0) zoom = 0.1f;
 		zoomThisUpdate = true;
 	}
+	if (inputHandler.WentDownAtFrame(VK_SPACE, frameCount)) {
+		funkyness++;
+		if (funkyness > 5) funkyness = 1;
+	}
 	if (zoomThisUpdate) {
 		int w = GetClientWidth();
 		int h = GetClientHeight();
 		projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, -10000.0f, 10000.0f);
 	}
 
-	grid.Update(frameCount);
+	grid.Update(frameCount / 200.0f, funkyness);
 
 	glm::vec3 tiltVector;
 	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f) * zoom + lookAtCenter;

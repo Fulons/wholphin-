@@ -69,7 +69,7 @@ namespace wholphin {
 	public:
 		Grid(glm::ivec2 size) : size(size){}
 		void Init();
-		void Update(int frameNumber);
+		void Update(float frameNumberFraction, int funkyness);
 		void Draw(GLuint modelMatrixIndex);
 		void DrawEntities(GLuint modelMatrixIndex);
 	private:
