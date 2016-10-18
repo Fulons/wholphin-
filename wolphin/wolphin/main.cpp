@@ -21,6 +21,7 @@ private:
 	GLuint IBO;
 	GLuint VAO;
 	wholphin::Shader shaderProg;
+	wholphin::Shader entityProg;
 
 	glm::mat4 modelMatrix;	
 	GLuint modelMatrixLocation;
@@ -29,6 +30,10 @@ private:
 	glm::mat4 projectionMatrix;
 	GLuint projectionMatrixLocation;
 	wholphin::Grid grid;
+
+	GLuint entityModelMatrixLocation;
+	GLuint entityViewMatrixLocation;
+	GLuint entityProjectionMatrixLocation;
 
 	glm::vec3 lookAtCenter;
 	float zoom = 1.0f;
@@ -53,6 +58,12 @@ bool TestApplication::Init() {
 	modelMatrixLocation = shaderProg.GetLocation("m");
 	viewMatrixLocation = shaderProg.GetLocation("v");
 	projectionMatrixLocation = shaderProg.GetLocation("p");
+	entityProg.Init("Shaders\\entityvs.glsl", "Shaders\\entityfs.glsl");
+	entityProg.Use();
+	entityModelMatrixLocation = entityProg.GetLocation("m");
+	entityViewMatrixLocation = entityProg.GetLocation("v");
+	entityProjectionMatrixLocation = entityProg.GetLocation("p");
+	CheckGLError();
 	Vertex vertices[] = {
 		Vertex{ glm::vec2(-0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 0.0f) },
 		Vertex{ glm::vec2(+0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f) },
@@ -80,6 +91,11 @@ bool TestApplication::Init() {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	CheckGLError();
 	grid.Init();
+
+	glEnable(GL_CULL_FACE);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS);
+
 	return true;
 }
 
@@ -136,6 +152,11 @@ bool TestApplication::Render() {
 	glBindVertexArray(0);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
+	entityProg.Use();
+	glUniformMatrix4fv(entityProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	glUniformMatrix4fv(entityViewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	grid.DrawEntities(entityModelMatrixLocation);
+	CheckGLError();
 	return true;
 }
 

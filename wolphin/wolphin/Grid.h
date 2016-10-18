@@ -24,7 +24,9 @@ namespace wholphin {
 	};
 
 	struct Buffer {
-
+		GLuint VBO;
+		GLuint IBO;
+		GLuint VAO;
 	};
 
 	struct SubMeshData {
@@ -36,8 +38,12 @@ namespace wholphin {
 	class MeshData {
 	public:
 		bool Init(const char* filename);
-		void MakeBuffer();
+		void Draw();
+		GLuint GetTextureID() {
+			return subMeshes[0].texture.ID;
+		}
 	private:
+		void MakeBuffer();
 		bool isInitialized = false;
 		std::vector<SubMeshData> subMeshes;
 		Buffer buffer;
@@ -65,6 +71,7 @@ namespace wholphin {
 		void Init();
 		void Update(int frameNumber);
 		void Draw(GLuint modelMatrixIndex);
+		void DrawEntities(GLuint modelMatrixIndex);
 	private:
 		glm::ivec2 size;
 		std::vector<Tile> tiles;

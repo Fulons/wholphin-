@@ -170,6 +170,8 @@ xcopy "$(SolutionDir)middleware\assimp\lib\assimp.dll" "$(SolutionDir)$(Configur
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\entityfs.glsl" />
+    <None Include="Shaders\entityvs.glsl" />
     <None Include="Shaders\tilefs.glsl" />
     <None Include="Shaders\tilevs.glsl" />
   </ItemGroup>

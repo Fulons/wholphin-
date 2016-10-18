@@ -60,5 +60,7 @@
   <ItemGroup>
     <None Include="Shaders\tilefs.glsl" />
     <None Include="Shaders\tilevs.glsl" />
+    <None Include="Shaders\entityfs.glsl" />
+    <None Include="Shaders\entityvs.glsl" />
   </ItemGroup>
 </Project>

@@ -22,8 +22,8 @@ namespace wholphin {
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ret.width, ret.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -96,6 +96,17 @@ namespace wholphin {
 		}
 		directory = file.substr(0, file.find_last_of('\\'));
 		ProcessNode(scene->mRootNode, scene);
+		MakeBuffer();
+	}
+
+	void MeshData::Draw(){
+		glBindVertexArray(buffer.VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer.VBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IBO);
+		glDrawElements(GL_TRIANGLES, subMeshes[0].indices.size(), GL_UNSIGNED_INT, NULL);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 
 	void MeshData::ProcessNode(aiNode* node, const aiScene* scene) {
@@ -112,9 +123,15 @@ namespace wholphin {
 	void MeshData::ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene * scene)	{
 		for (GLuint i = 0; i < mesh->mNumVertices; i++) {
 			Vertex3D vertex;
-			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, -mesh->mVertices[i].z);
 			vertex.texCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 			subMesh.vertices.push_back(vertex);
+		}
+
+		for (GLuint i = 0; i < mesh->mNumFaces; i++) {
+			aiFace face = mesh->mFaces[i];
+			for (GLuint j = 0; j < face.mNumIndices; j++)
+				subMesh.indices.push_back(face.mIndices[j]);
 		}
 
 		if (mesh->mMaterialIndex >= 0) {
@@ -127,11 +144,26 @@ namespace wholphin {
 	}
 
 	void MeshData::MakeBuffer() {
+		glGenBuffers(1, &buffer.VBO);
+		glGenBuffers(1, &buffer.IBO);
+		glGenVertexArrays(1, &buffer.VAO);
+		glBindVertexArray(buffer.VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer.VBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * subMeshes[0].vertices.size(), subMeshes[0].vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * subMeshes[0].indices.size(), subMeshes[0].indices.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (GLvoid*)(sizeof(glm::vec2)));
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (GLvoid*)0);
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 
 	void Grid::Init() {
-		meshData.Init("C:\\Users\\Fulons\\Desktop\\palmtree\\palmtree\\palm_tree.obj");
+		meshData.Init("Assets\\palm_tree.obj");
 		std::vector<glm::vec2> UVs;
 		UVs.resize(4 * 4 * 4);
 		for (unsigned x = 0; x < 4; x++) {
@@ -192,6 +224,9 @@ namespace wholphin {
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * UVs.size(), UVs.data(), GL_STATIC_DRAW);
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		CheckGLError();
 	}
 
@@ -235,6 +270,16 @@ namespace wholphin {
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		}
+		
+	}
+
+	void Grid::DrawEntities(GLuint modelMatrixIndex){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, meshData.GetTextureID());
+		glm::mat4 model(0.001f);
+		//model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
+		meshData.Draw();
 	}
 
 }
