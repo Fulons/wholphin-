@@ -123,14 +123,14 @@ namespace wholphin {
 	void MeshData::ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene * scene)	{
 		for (GLuint i = 0; i < mesh->mNumVertices; i++) {
 			Vertex3D vertex;
-			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].z, mesh->mVertices[i].y);
 			vertex.texCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 			subMesh.vertices.push_back(vertex);
 		}
 
 		for (GLuint i = 0; i < mesh->mNumFaces; i++) {
 			aiFace face = mesh->mFaces[i];
-			for (GLuint j = 0; j < face.mNumIndices; j++)
+			for (GLuint j = face.mNumIndices - 1; j < face.mNumIndices; j--)
 				subMesh.indices.push_back(face.mIndices[j]);
 		}
 
@@ -292,7 +292,7 @@ namespace wholphin {
 		glBindTexture(GL_TEXTURE_2D, meshData.GetTextureID());
 		glm::mat4 model;
 		model = glm::translate(model, glm::vec3(10000.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
 		glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
 		meshData.Draw();

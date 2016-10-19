@@ -53,7 +53,7 @@ bool TestApplication::Init() {
 	glm::vec3 tiltVector;
 	//tiltVector = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
 	//tiltVector.z = 1.0f;
-	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f) * zoom + lookAtCenter;
+	tiltVector = glm::vec3(-1.0f, -1.0f, 1.0f) * zoom + lookAtCenter;
 	viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));
 	shaderProg.Init("Shaders\\tilevs.glsl", "Shaders\\tilefs.glsl");
 	shaderProg.Use();
@@ -95,8 +95,8 @@ bool TestApplication::Init() {
 	grid.Init();
 
 	glEnable(GL_CULL_FACE);
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	return true;
 }
@@ -139,13 +139,13 @@ bool TestApplication::Update(float dt) {
 	grid.Update(frameCount / 200.0f, funkyness);
 
 	glm::vec3 tiltVector;
-	tiltVector = glm::vec3(1.0f, 1.0f, 1.0f) * zoom + lookAtCenter;
+	tiltVector = glm::vec3(-1.0f, -1.0f, 1.0f) * zoom + lookAtCenter;
 	viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));
 	return true;
 }
 
 bool TestApplication::Render() {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shaderProg.Use();
 	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
