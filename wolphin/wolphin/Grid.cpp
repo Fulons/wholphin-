@@ -123,7 +123,7 @@ namespace wholphin {
 	void MeshData::ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene * scene)	{
 		for (GLuint i = 0; i < mesh->mNumVertices; i++) {
 			Vertex3D vertex;
-			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, -mesh->mVertices[i].z);
+			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 			vertex.texCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 			subMesh.vertices.push_back(vertex);
 		}
@@ -163,7 +163,7 @@ namespace wholphin {
 	}
 
 	void Grid::Init() {
-		meshData.Init("Assets\\palm_tree.obj");
+		meshData.Init("Assets\\palmScaleTest.obj");
 		std::vector<glm::vec2> UVs;
 		UVs.resize(4 * 4 * 4);
 		for (unsigned x = 0; x < 4; x++) {
@@ -187,7 +187,7 @@ namespace wholphin {
 				pn /= 3.0f;
 				int tileType = (int)((pn + 1) * 6);
 				tiles[x + (y * size.x)] = Tile(tileType, glm::vec2(x - size.x / 2, y - size.y / 2));
-				modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
+				modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 50.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
 			}
 		}
 
@@ -238,7 +238,9 @@ namespace wholphin {
 		case 2: average = 2.0f; break;
 		case 3: average = 2.5f; break;
 		case 4: average = 3.5f; break;
-		case 5: average = 4.5f; break;
+		case 5: average = 3.5f; break;
+		case 6: average = 4.5f; break;
+		case 7: average = 6.5f; break;
 		}
 
 		float time = frameNumberFraction;
@@ -246,10 +248,12 @@ namespace wholphin {
 			for (int y = 0; y < size.y; y++) {
 				glm::vec3 perlinPos = glm::vec3(glm::vec2(x - size.x / 2, y - size.y / 2) / (glm::vec2)size, time);
 				float pn = Perlin(perlinPos * 20.0f) * 0.5f;
-				if(funkyness > 1) pn += Perlin(perlinPos * 3.0f) * 1.5f;
-				if(funkyness > 2) pn += Perlin(perlinPos * 50.0f) * 0.5f;
-				if(funkyness > 3) pn += sin((float)x / size.x * glm::pi<float>() * 10);
-				if(funkyness > 4) pn += sin((float)y / size.y * glm::pi<float>() * 17);
+				if (funkyness > 1) pn += Perlin(perlinPos * 3.0f) * 1.5f;
+				if (funkyness > 2) pn += Perlin(perlinPos * 50.0f) * 0.5f;
+				if (funkyness == 4) pn += sin(sqrt(x*x + y*y) / size.length() * glm::pi<float>() * 0.1f);
+				if (funkyness > 4) pn += sin((float)x / size.x * glm::pi<float>() * 10);//sin((float)y / size.y * glm::pi<float>() * 17);
+				if (funkyness > 5) pn += sin((float)y / size.y * glm::pi<float>() * 10);
+				if (funkyness > 6) pn += sin(sqrt(x*x + y*y) / size.length() * glm::pi<float>() * 0.1f) * 2;
 				pn /= average;
 				int tileType = (int)((pn + 1) * 9);
 				tiles[x + (y * size.x)].type = tileType;
@@ -286,8 +290,10 @@ namespace wholphin {
 	void Grid::DrawEntities(GLuint modelMatrixIndex){
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, meshData.GetTextureID());
-		glm::mat4 model(0.001f);
-		//model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(10000.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
 		glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
 		meshData.Draw();
 	}

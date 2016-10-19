@@ -8,6 +8,5 @@ out vec2 UV;
 
 void main(){
     gl_Position = p * v * m * vec4(position, 1.0f);
-	gl_Position.z = 0.0f;
 	UV = inUV;
 }

@@ -49,6 +49,7 @@ bool TestApplication::Init() {
 	Context::Init();
 	modelMatrix = glm::mat4(100.0f);
 	modelMatrix[3][3] = 1.0f;
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(30.0f, 0.0f, 0.0f));
 	glm::vec3 tiltVector;
 	//tiltVector = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
 	//tiltVector.z = 1.0f;
@@ -101,7 +102,7 @@ bool TestApplication::Init() {
 }
 
 bool TestApplication::Update(float dt) {
-	modelMatrix = glm::rotate(modelMatrix, dt, glm::vec3(0.0f, 0.0f, 1.0f));
+	//modelMatrix = glm::rotate(modelMatrix, dt, glm::vec3(0.0f, 0.0f, 1.0f));
 	const static float speed = 1000.0f;
 	bool zoomThisUpdate = false;
 	if (inputHandler.IsDown('A')) {
@@ -127,7 +128,7 @@ bool TestApplication::Update(float dt) {
 	}
 	if (inputHandler.WentDownAtFrame(VK_SPACE, frameCount)) {
 		funkyness++;
-		if (funkyness > 5) funkyness = 1;
+		if (funkyness > 7) funkyness = 1;
 	}
 	if (zoomThisUpdate) {
 		int w = GetClientWidth();
@@ -146,20 +147,21 @@ bool TestApplication::Update(float dt) {
 bool TestApplication::Render() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	shaderProg.Use();
-	grid.Draw(modelMatrixLocation);
 	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	grid.Draw(modelMatrixLocation);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	entityProg.Use();
 	glUniformMatrix4fv(entityProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
 	glUniformMatrix4fv(entityViewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	//glUniformMatrix4fv(entityModelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 	grid.DrawEntities(entityModelMatrixLocation);
 	CheckGLError();
 	return true;

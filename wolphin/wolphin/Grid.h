@@ -35,6 +35,10 @@ namespace wholphin {
 		Texture texture;
 	};
 
+	struct Entity {
+		
+	};
+
 	class MeshData {
 	public:
 		bool Init(const char* filename);
