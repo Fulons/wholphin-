@@ -8,6 +8,7 @@
 #include "Utilities.h"
 #include "Grid.h"
 #include "Shader.h"
+#include <GL\wglew.h>
 
 class TestApplication : public wholphin::Context {
 public:
@@ -49,7 +50,7 @@ bool TestApplication::Init() {
 	Context::Init();
 	modelMatrix = glm::mat4(100.0f);
 	modelMatrix[3][3] = 1.0f;
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(30.0f, 0.0f, 0.0f));
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(30.0f, 0.0f, -1.0f));
 	glm::vec3 tiltVector;
 	//tiltVector = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
 	//tiltVector.z = 1.0f;
@@ -99,6 +100,7 @@ bool TestApplication::Init() {
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS);
+	wglSwapIntervalEXT(1);
 
 	return true;
 }

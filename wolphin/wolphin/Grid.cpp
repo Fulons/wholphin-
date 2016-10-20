@@ -21,8 +21,8 @@ namespace wholphin {
 		glGenTextures(1, &ret.ID);
 		glBindTexture(GL_TEXTURE_2D, ret.ID);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -122,7 +122,7 @@ namespace wholphin {
 		glBindVertexArray(buffer.VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, buffer.VBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IBO);
-		glDrawElements(GL_TRIANGLES, subMeshes[0].indices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, NULL);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
@@ -169,8 +169,34 @@ namespace wholphin {
 		glBindVertexArray(buffer.VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, buffer.VBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * subMeshes[0].vertices.size(), subMeshes[0].vertices.data(), GL_STATIC_DRAW);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * subMeshes[0].indices.size(), subMeshes[0].indices.data(), GL_STATIC_DRAW);
+		GLsizeiptr VBOBufferSize = 0;
+		GLsizeiptr IBOBufferSize = 0;
+		for (auto mesh : subMeshes) {
+			VBOBufferSize += mesh.vertices.size();
+			IBOBufferSize += mesh.indices.size();
+		}
+		numIndices = IBOBufferSize;
+		VBOBufferSize *= sizeof(Vertex3D);
+		IBOBufferSize *= sizeof(GLuint);
+		glBufferData(GL_ARRAY_BUFFER, VBOBufferSize, nullptr, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, IBOBufferSize, nullptr, GL_STATIC_DRAW);
+		
+		GLintptr vboRunner = 0;
+		GLintptr iboRunner = 0;
+		for (unsigned i = 0; i < subMeshes.size(); i++) {
+			if (i != 0) {
+				GLuint indexOffset = vboRunner / sizeof(Vertex3D);
+				for (unsigned j = 0; j < subMeshes[i].indices.size(); j++)
+					subMeshes[i].indices[j] += indexOffset;
+			}
+			GLsizeiptr vertexSize = subMeshes[i].vertices.size() * sizeof(Vertex3D);
+			GLsizeiptr indexSize = subMeshes[i].indices.size() * sizeof(GLuint);
+			glBufferSubData(GL_ARRAY_BUFFER, vboRunner, vertexSize, subMeshes[i].vertices.data());
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, iboRunner, indexSize, subMeshes[i].indices.data());
+			vboRunner += vertexSize;
+			iboRunner += indexSize;
+		}
+		
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(3);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (GLvoid*)(sizeof(glm::vec2)));
@@ -182,6 +208,7 @@ namespace wholphin {
 	}
 
 	void Grid::Init() {
+		testMesh.Init("Assets\\temple.obj");
 		palmMesh.Init("Assets\\palmScaleTest.obj");
 		Texture bushTexture = LoadTexture("Assets\\shrub_00.png", SOIL_LOAD_RGBA);
 		bushMesh.InitBillboard(glm::vec2(25.0f, 25.0f), bushTexture);
@@ -287,7 +314,7 @@ namespace wholphin {
 				int tileType = (int)((pn + 1) * 9);
 				tiles[x + (y * size.x)].type = tileType;
 				int treeAndBushRand = rand() % 7;
-				if (tileType == 4 && (treeAndBushRand == 5 || treeAndBushRand == 3 || treeAndBushRand == 2)) {
+				if ((tileType == 4 || tileType == 5) && (treeAndBushRand == 5 || treeAndBushRand == 3 || treeAndBushRand == 2)) {
 					float randScale = (rand() % 100) / 100.0f + 0.5f;
 					glm::mat4 model(1);
 					glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos * 50.0f, 0.0f));
@@ -301,6 +328,7 @@ namespace wholphin {
 					if(treeAndBushRand != 5)
 						entities.push_back(Entity{ model, &bushMesh });
 				}
+				tiles[x + (y * size.x)].type = 4;
 				//modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
 			}
 		}
@@ -326,20 +354,20 @@ namespace wholphin {
 
 			glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &modelMatrix[i][0][0]);
 
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);			
 		}
 		
 	}
 
 	void Grid::DrawEntities(GLuint modelMatrixIndex){
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, palmMesh.GetTextureID());
-		//glm::mat4 model;
-		//model = glm::translate(model, glm::vec3(4950.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-		//model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-		//glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
-		//palmMesh.Draw();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, testMesh.GetTextureID());
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(3000.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
+		testMesh.Draw();
 		for (unsigned i = 0; i < entities.size(); i++) {
 			glBindTexture(GL_TEXTURE_2D, entities[i].what->GetTextureID());
 			glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &entities[i].where[0][0]);

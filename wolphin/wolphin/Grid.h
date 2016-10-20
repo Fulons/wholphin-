@@ -33,6 +33,7 @@ namespace wholphin {
 		std::vector<Vertex3D> vertices;
 		std::vector<GLuint> indices;
 		Texture texture;
+		GLuint indexOffset;
 	};	
 
 	class MeshData {
@@ -43,7 +44,9 @@ namespace wholphin {
 		GLuint GetTextureID() {
 			return subMeshes[0].texture.ID;
 		}
+		GLuint GetNumIndices() { return numIndices; }
 	private:
+		GLuint numIndices;
 		void MakeBuffer();
 		bool isInitialized = false;
 		std::vector<SubMeshData> subMeshes;
@@ -85,6 +88,7 @@ namespace wholphin {
 		MeshData meshData;
 		MeshData palmMesh;
 		MeshData bushMesh;
+		MeshData testMesh;
 		
 		Texture textureMap;
 		std::vector<glm::ivec2> texturePos;
