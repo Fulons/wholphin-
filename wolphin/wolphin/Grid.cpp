@@ -20,8 +20,8 @@ namespace wholphin {
 		glGenTextures(1, &ret.ID);
 		glBindTexture(GL_TEXTURE_2D, ret.ID);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -163,15 +163,22 @@ namespace wholphin {
 	}
 
 	void Grid::Init() {
-		meshData.Init("Assets\\palmScaleTest.obj");
+		palmMesh.Init("Assets\\palmScaleTest.obj");
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(4950.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+		entities.push_back(Entity{ model, &palmMesh });
+
 		std::vector<glm::vec2> UVs;
 		UVs.resize(4 * 4 * 4);
+		float factor = 0.001f;
 		for (unsigned x = 0; x < 4; x++) {
 			for (unsigned y = 0; y < 4; y++) {
-				UVs[(x + (y * 4)) * 4 + 0] = glm::vec2(x / 4.0f,		  y / 4.0f);
-				UVs[(x + (y * 4)) * 4 + 1] = glm::vec2((x + 1) / 4.0f,  y / 4.0f);
-				UVs[(x + (y * 4)) * 4 + 2] = glm::vec2((x + 1) / 4.0f, (y + 1) / 4.0f);
-				UVs[(x + (y * 4)) * 4 + 3] = glm::vec2(x / 4.0f,		 (y + 1) / 4.0f);
+				UVs[(x + (y * 4)) * 4 + 0] = glm::vec2( x / 4.0f + factor,	 y / 4.0f + factor);
+				UVs[(x + (y * 4)) * 4 + 1] = glm::vec2((x + 1) / 4.0f - factor,		 y / 4.0f + factor);
+				UVs[(x + (y * 4)) * 4 + 2] = glm::vec2((x + 1) / 4.0f - factor,		(y + 1) / 4.0f - factor);
+				UVs[(x + (y * 4)) * 4 + 3] = glm::vec2( x / 4.0f + factor,			(y + 1) / 4.0f - factor);
 			}
 		}		
 
@@ -242,21 +249,28 @@ namespace wholphin {
 		case 6: average = 4.5f; break;
 		case 7: average = 6.5f; break;
 		}
-
-		float time = frameNumberFraction;
+		entities.clear();
+		float time = frameNumberFraction / 100.0f;
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
 				glm::vec3 perlinPos = glm::vec3(glm::vec2(x - size.x / 2, y - size.y / 2) / (glm::vec2)size, time);
 				float pn = Perlin(perlinPos * 20.0f) * 0.5f;
 				if (funkyness > 1) pn += Perlin(perlinPos * 3.0f) * 1.5f;
 				if (funkyness > 2) pn += Perlin(perlinPos * 50.0f) * 0.5f;
-				if (funkyness == 4) pn += sin(sqrt(x*x + y*y) / size.length() * glm::pi<float>() * 0.1f);
-				if (funkyness > 4) pn += sin((float)x / size.x * glm::pi<float>() * 10);//sin((float)y / size.y * glm::pi<float>() * 17);
-				if (funkyness > 5) pn += sin((float)y / size.y * glm::pi<float>() * 10);
-				if (funkyness > 6) pn += sin(sqrt(x*x + y*y) / size.length() * glm::pi<float>() * 0.1f) * 2;
+				if (funkyness == 4) pn += sinf(sqrt(x*x + y*y) / size.length() * glm::pi<float>() * 0.1f);
+				if (funkyness > 4) pn += sinf((float)x / size.x * glm::pi<float>() * 10);//sin((float)y / size.y * glm::pi<float>() * 17);
+				if (funkyness > 5) pn += sinf((float)y / size.y * glm::pi<float>() * 10);
+				if (funkyness > 6) pn += sinf(sqrt(x*x + y*y) / size.length() * glm::pi<float>() * 0.1f) * 2;
 				pn /= average;
 				int tileType = (int)((pn + 1) * 9);
 				tiles[x + (y * size.x)].type = tileType;
+				if (tileType == 4 && (rand() % 7) == 5) {
+					glm::mat4 model(1);
+					model = glm::translate(model, glm::vec3(tiles[x + (y * size.x)].pos * 50.0f, 0.0f));
+					model = glm::rotate(model, (float)((rand() % 100) / 100.0f * glm::pi<float>()), glm::vec3(0.0f, 0.0f, 1.0f));
+					model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+					entities.push_back(Entity{ model, &palmMesh });
+				}
 				//modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
 			}
 		}
@@ -288,14 +302,20 @@ namespace wholphin {
 	}
 
 	void Grid::DrawEntities(GLuint modelMatrixIndex){
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, meshData.GetTextureID());
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(10000.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-		model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
-		glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
-		meshData.Draw();
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, palmMesh.GetTextureID());
+		//glm::mat4 model;
+		//model = glm::translate(model, glm::vec3(4950.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		//model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+		//glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
+		//palmMesh.Draw();
+		for (unsigned i = 0; i < entities.size(); i++) {
+			glBindTexture(GL_TEXTURE_2D, entities[i].what->GetTextureID());
+			glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &entities[i].where[0][0]);
+			entities[i].what->Draw();
+		}
+		
 	}
 
 }

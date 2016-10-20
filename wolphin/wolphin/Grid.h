@@ -33,11 +33,7 @@ namespace wholphin {
 		std::vector<Vertex3D> vertices;
 		std::vector<GLuint> indices;
 		Texture texture;
-	};
-
-	struct Entity {
-		
-	};
+	};	
 
 	class MeshData {
 	public:
@@ -58,6 +54,10 @@ namespace wholphin {
 		void ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene* scene);
 	};
 
+	struct Entity {
+		glm::mat4 where;
+		MeshData* what;
+	};
 
 	Texture LoadTexture(const char* file);
 
@@ -82,8 +82,11 @@ namespace wholphin {
 		std::vector<glm::mat4> modelMatrix;
 	private:
 		MeshData meshData;
+		MeshData palmMesh;
+		
 		Texture textureMap;
 		std::vector<glm::ivec2> texturePos;
+		std::vector<Entity> entities;
 		GLuint VBO;
 		GLuint CBO;
 		GLuint IBO;
