@@ -10,9 +10,10 @@ namespace wholphin {
 
 	
 
-	Texture LoadTexture(const char * file){
+	Texture LoadTexture(const char * file, int forceChannels){
 		Texture ret;
-		unsigned char* image = SOIL_load_image(file, &ret.width, &ret.height, 0, SOIL_LOAD_RGB);
+		int channels = 0;
+		unsigned char* image = SOIL_load_image(file, &ret.width, &ret.height, &channels, forceChannels);
 		if (!image) {
 			OutErrorMessage((std::string("Could not load texture:") + file).c_str());
 			return Texture();
@@ -25,7 +26,14 @@ namespace wholphin {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ret.width, ret.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		GLint format = GL_RGB;
+		switch (channels) {
+		case SOIL_LOAD_RGB: format = GL_RGB; break;
+		case SOIL_LOAD_RGBA: format = GL_RGBA; break;
+		}
+
+
+		glTexImage2D(GL_TEXTURE_2D, 0, format, ret.width, ret.height, 0, format, GL_UNSIGNED_BYTE, image);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		SOIL_free_image_data(image);
 		return ret;
@@ -99,6 +107,17 @@ namespace wholphin {
 		MakeBuffer();
 	}
 
+	void MeshData::InitBillboard(glm::vec2 size, Texture texture) {
+		subMeshes.push_back(SubMeshData());
+		subMeshes[0].vertices = { Vertex3D{glm::vec2(1.0f, 1.0f), glm::vec3(-size.x / 2.0f, size.y / 2.0f, 0)},
+								  Vertex3D{glm::vec2(0.0f, 1.0f), glm::vec3(size.x / 2.0f, -size.y / 2.0f, 0)},
+								  Vertex3D{glm::vec2(0.0f, 0.0f), glm::vec3(size.x / 2.0f, -size.y / 2.0f, size.y)},
+								  Vertex3D{glm::vec2(1.0f, 0.0f), glm::vec3(-size.x / 2.0f, size.y / 2.0f, size.y)} };
+		subMeshes[0].texture = texture;
+		subMeshes[0].indices = { 0, 1, 2, 0, 2, 3 };
+		MakeBuffer();
+	}
+
 	void MeshData::Draw(){
 		glBindVertexArray(buffer.VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, buffer.VBO);
@@ -164,6 +183,8 @@ namespace wholphin {
 
 	void Grid::Init() {
 		palmMesh.Init("Assets\\palmScaleTest.obj");
+		Texture bushTexture = LoadTexture("Assets\\shrub_00.png", SOIL_LOAD_RGBA);
+		bushMesh.InitBillboard(glm::vec2(25.0f, 25.0f), bushTexture);
 		glm::mat4 model;
 		model = glm::translate(model, glm::vec3(4950.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
@@ -251,6 +272,7 @@ namespace wholphin {
 		}
 		entities.clear();
 		float time = frameNumberFraction / 100.0f;
+		time = 10;
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
 				glm::vec3 perlinPos = glm::vec3(glm::vec2(x - size.x / 2, y - size.y / 2) / (glm::vec2)size, time);
@@ -264,12 +286,20 @@ namespace wholphin {
 				pn /= average;
 				int tileType = (int)((pn + 1) * 9);
 				tiles[x + (y * size.x)].type = tileType;
-				if (tileType == 4 && (rand() % 7) == 5) {
+				int treeAndBushRand = rand() % 7;
+				if (tileType == 4 && (treeAndBushRand == 5 || treeAndBushRand == 3 || treeAndBushRand == 2)) {
+					float randScale = (rand() % 100) / 100.0f + 0.5f;
 					glm::mat4 model(1);
-					model = glm::translate(model, glm::vec3(tiles[x + (y * size.x)].pos * 50.0f, 0.0f));
-					model = glm::rotate(model, (float)((rand() % 100) / 100.0f * glm::pi<float>()), glm::vec3(0.0f, 0.0f, 1.0f));
-					model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-					entities.push_back(Entity{ model, &palmMesh });
+					glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos * 50.0f, 0.0f));
+					glm::mat4 rotate = glm::rotate(glm::mat4(), (float)((rand() % 100) / 100.0f * glm::pi<float>()), glm::vec3(0.0f, 0.0f, 1.0f));
+					glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(10.0f * randScale, 10.0f * randScale, 10.0f * randScale));
+					model = translate * rotate * scale;
+					if(treeAndBushRand == 5)
+						entities.push_back(Entity{ model, &palmMesh });
+					scale = glm::scale(glm::mat4(), glm::vec3(6.0f * randScale, 6.0f * randScale, 6.0f * randScale));
+					model = translate * scale;
+					if(treeAndBushRand != 5)
+						entities.push_back(Entity{ model, &bushMesh });
 				}
 				//modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 1.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
 			}

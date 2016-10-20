@@ -62,5 +62,12 @@
     <None Include="Shaders\tilevs.glsl" />
     <None Include="Shaders\entityfs.glsl" />
     <None Include="Shaders\entityvs.glsl" />
+    <None Include="Shaders\multitexturefs.glsl" />
+    <None Include="Shaders\multitexturevs.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="tileMap.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

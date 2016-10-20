@@ -3,7 +3,9 @@
 in vec3 color;
 in vec2 UV;
 
-uniform sampler2D tex;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform sampler2D tex3;
 
 out vec4 outputColor;
 

@@ -2,7 +2,9 @@
 
 in layout(location = 1) vec2 position;
 in layout(location = 2) vec3 incolor;
-in layout(location = 3) vec2 inUV;
+in layout(location = 3) vec2 inUV1;
+in layout(location = 4) vec2 inUV2;
+in layout(location = 4) vec2 inUV3;
 uniform mat4 m, v, p;
 
 out vec3 color;

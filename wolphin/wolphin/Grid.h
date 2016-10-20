@@ -38,6 +38,7 @@ namespace wholphin {
 	class MeshData {
 	public:
 		bool Init(const char* filename);
+		void InitBillboard(glm::vec2 size, Texture texture);
 		void Draw();
 		GLuint GetTextureID() {
 			return subMeshes[0].texture.ID;
@@ -59,7 +60,7 @@ namespace wholphin {
 		MeshData* what;
 	};
 
-	Texture LoadTexture(const char* file);
+	Texture LoadTexture(const char* file, int forceChannels = 3/*RGB*/);
 
 	class Tile {
 	public:
@@ -72,7 +73,7 @@ namespace wholphin {
 	class Grid {
 	public:
 		Grid(glm::ivec2 size) : size(size){}
-		void Init();
+		void Init();		
 		void Update(float frameNumberFraction, int funkyness);
 		void Draw(GLuint modelMatrixIndex);
 		void DrawEntities(GLuint modelMatrixIndex);
@@ -83,6 +84,7 @@ namespace wholphin {
 	private:
 		MeshData meshData;
 		MeshData palmMesh;
+		MeshData bushMesh;
 		
 		Texture textureMap;
 		std::vector<glm::ivec2> texturePos;
