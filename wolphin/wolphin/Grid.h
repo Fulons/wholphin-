@@ -78,25 +78,45 @@ namespace wholphin {
 		Grid(glm::ivec2 size) : size(size){}
 		void Init();		
 		void Update(float frameNumberFraction, int funkyness);
-		void Draw(GLuint modelMatrixIndex);
+		void Draw(GLuint modelMatrixIndex, GLuint tex1loc, GLuint tex2loc, GLuint tex3loc);
 		void DrawEntities(GLuint modelMatrixIndex);
 	private:
 		glm::ivec2 size;
 		std::vector<Tile> tiles;
 		std::vector<glm::mat4> modelMatrix;
 	private:
-		MeshData meshData;
 		MeshData palmMesh;
-		MeshData bushMesh;
+		MeshData bushMesh[6];
 		MeshData testMesh;
 		
 		Texture textureMap;
+		Texture textureMixTexture;
+		union {
+			struct {
+				Texture desGround00;
+				Texture desGround01;
+				Texture desGround02;
+				Texture desGround03;
+			};
+			Texture desTextures[4];
+		};
+		union {
+			struct {
+				Texture desShrub00;
+				Texture desShrub01;
+				Texture desShrub02;
+				Texture desShrub03;
+				Texture desShrub04;
+			};
+			Texture desShruberyTextures[5];
+		};
 		std::vector<glm::ivec2> texturePos;
 		std::vector<Entity> entities;
 		GLuint VBO;
 		GLuint CBO;
 		GLuint IBO;
 		GLuint TBO;
+		GLuint TBO2;
 		GLuint VAO;
 	};
 

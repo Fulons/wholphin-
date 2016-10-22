@@ -2,7 +2,9 @@
 
 in layout(location = 1) vec3 position;
 in layout(location = 3) vec2 inUV;
-uniform mat4 m, v, p;
+uniform mat4 m;
+uniform mat4 v;
+uniform mat4 p;
 
 out vec2 UV;
 

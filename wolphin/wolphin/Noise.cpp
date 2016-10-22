@@ -67,8 +67,8 @@ namespace wholphin {
 		float noiseContribution10 = glm::dot(gradients2D[gradientIndex10], glm::vec2(relative.x - 1, relative.y));
 		float noiseContribution11 = glm::dot(gradients2D[gradientIndex11], glm::vec2(relative.x - 1, relative.y - 1));
 
-		float u = fade(relative.x);
-		float v = fade(relative.y);
+		float u = fade(relative.x);//relative.x;
+		float v = fade(relative.y);//relative.y;
 
 		float xInterpolated0 = lerp(noiseContribution00, noiseContribution10, u);
 		float xInterpolated1 = lerp(noiseContribution01, noiseContribution11, u);
@@ -99,9 +99,9 @@ namespace wholphin {
 		float noiseContribution110 = glm::dot(gradients3d[gradientIndex110], glm::vec3(relative.x - 1, relative.y - 1, relative.z - 0));
 		float noiseContribution111 = glm::dot(gradients3d[gradientIndex111], glm::vec3(relative.x - 1, relative.y - 1, relative.z - 1));
 
-		float u = fade(relative.x);
-		float v = fade(relative.y);
-		float w = fade(relative.z);
+		float u = fade(relative.x);//relative.x;
+		float v = fade(relative.y);//relative.y;
+		float w = fade(relative.z);//relative.z;
 
 		float xInterpolated00 = lerp(noiseContribution000, noiseContribution100, u);
 		float xInterpolated10 = lerp(noiseContribution010, noiseContribution110, u);

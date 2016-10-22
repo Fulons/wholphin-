@@ -23,6 +23,7 @@ private:
 	GLuint VAO;
 	wholphin::Shader shaderProg;
 	wholphin::Shader entityProg;
+	wholphin::Shader multiTextureProg;
 
 	glm::mat4 modelMatrix;	
 	GLuint modelMatrixLocation;
@@ -35,6 +36,15 @@ private:
 	GLuint entityModelMatrixLocation;
 	GLuint entityViewMatrixLocation;
 	GLuint entityProjectionMatrixLocation;
+
+	GLuint multiTextureModelMatrixLocation;
+	GLuint multiTextureViewMatrixLocation;
+	GLuint multiTextureProjectionMatrixLocation;
+	GLuint multiTexture1Location;
+	GLuint multiTexture2Location;
+	GLuint multiTexture3Location;
+	GLuint multiTexture4Location;
+	GLuint multiTexture5Location;
 
 	glm::vec3 lookAtCenter;
 	float zoom = 1.0f;
@@ -57,15 +67,26 @@ bool TestApplication::Init() {
 	tiltVector = glm::vec3(-1.0f, -1.0f, 1.0f) * zoom + lookAtCenter;
 	viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));
 	shaderProg.Init("Shaders\\tilevs.glsl", "Shaders\\tilefs.glsl");
-	shaderProg.Use();
+	//shaderProg.Use();
 	modelMatrixLocation = shaderProg.GetLocation("m");
 	viewMatrixLocation = shaderProg.GetLocation("v");
 	projectionMatrixLocation = shaderProg.GetLocation("p");
 	entityProg.Init("Shaders\\entityvs.glsl", "Shaders\\entityfs.glsl");
-	entityProg.Use();
+	//entityProg.Use();
 	entityModelMatrixLocation = entityProg.GetLocation("m");
 	entityViewMatrixLocation = entityProg.GetLocation("v");
 	entityProjectionMatrixLocation = entityProg.GetLocation("p");
+	multiTextureProg.Init("Shaders\\multitexturevs.glsl", "Shaders\\multitexturefs.glsl");
+	//multiTextureProg.Use();
+	multiTextureModelMatrixLocation = multiTextureProg.GetLocation("m");
+	multiTextureViewMatrixLocation = multiTextureProg.GetLocation("v");
+	multiTextureProjectionMatrixLocation = multiTextureProg.GetLocation("p");
+	multiTexture1Location = multiTextureProg.GetLocation("tex1");
+	multiTexture2Location = multiTextureProg.GetLocation("tex2");
+	multiTexture3Location = multiTextureProg.GetLocation("tex3");
+	multiTexture4Location = multiTextureProg.GetLocation("tex4");
+	multiTexture5Location = multiTextureProg.GetLocation("textureMap");
+
 	CheckGLError();
 	Vertex vertices[] = {
 		Vertex{ glm::vec2(-0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 0.0f) },
@@ -97,8 +118,8 @@ bool TestApplication::Init() {
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS);
 	wglSwapIntervalEXT(1);
 
@@ -150,11 +171,16 @@ bool TestApplication::Update(float dt) {
 
 bool TestApplication::Render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	shaderProg.Use();
-	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
-	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
-	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
-	grid.Draw(modelMatrixLocation);
+	multiTextureProg.Use();
+	//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]);
+	glUniformMatrix4fv(multiTextureProjectionMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
+	glUniformMatrix4fv(multiTextureViewMatrixLocation, 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniform1i(multiTexture1Location, 0);
+	glUniform1i(multiTexture2Location, 1);
+	glUniform1i(multiTexture3Location, 2);
+	glUniform1i(multiTexture4Location, 3);
+	glUniform1i(multiTexture5Location, 4);
+	grid.Draw(multiTextureModelMatrixLocation, multiTexture1Location, multiTexture2Location, multiTexture3Location);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -173,7 +199,7 @@ bool TestApplication::Render() {
 
 void TestApplication::Resize(int w, int h){
 	glViewport(0, 0, w, h);
-	projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, -10000.0f, 10000.0f);
+	projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, 10000.0f, -10000.0f);
 	//glm::perspective(glm::radians(45.0f), (float)w / h, 0.1f, 100.0f);
 }
 

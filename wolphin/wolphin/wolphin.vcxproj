@@ -179,6 +179,7 @@ xcopy "$(SolutionDir)middleware\assimp\lib\assimp.dll" "$(SolutionDir)$(Configur
   </ItemGroup>
   <ItemGroup>
     <Image Include="tileMap.png" />
+    <Image Include="tileMapV2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
