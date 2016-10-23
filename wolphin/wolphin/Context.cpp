@@ -194,8 +194,40 @@ namespace wholphin {
 	//This might be bad, when will glfw call this?
 	void windowSizeCallback(GLFWwindow* window, int width, int height) {
 		Context* context = (Context*)glfwGetWindowUserPointer(window);
+		context->clientWidth = width;
+		context->clientHeight = height;
 		context->Resize(width, height);
-	}	
+	}
+
+	void windowKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		Context* context = (Context*)glfwGetWindowUserPointer(window);
+		if (action == GLFW_PRESS) {
+			switch (key) {
+			case GLFW_KEY_W: 
+			case GLFW_KEY_S:
+			case GLFW_KEY_A:
+			case GLFW_KEY_D:
+			case GLFW_KEY_Q:
+			case GLFW_KEY_E:
+				context->inputHandler.KeyDown(key, context->frameCount); break;
+			case GLFW_KEY_SPACE:
+				context->inputHandler.KeyDown(0x20/*VK_SPACE*/, context->frameCount); break;
+			}
+		}
+		else {
+			switch (key) {
+			case GLFW_KEY_W: 
+			case GLFW_KEY_S:
+			case GLFW_KEY_A:
+			case GLFW_KEY_D:
+			case GLFW_KEY_Q:
+			case GLFW_KEY_E:
+				context->inputHandler.KeyUp(key, context->frameCount); break;
+			case GLFW_KEY_SPACE:
+				context->inputHandler.KeyUp(0x20/*VK_SPACE*/, context->frameCount); break;
+			}
+		}
+	}
 
 	bool Context::Init() {
 		glfwInit();
@@ -210,8 +242,9 @@ namespace wholphin {
 		GLenum err = glewInit();
 		if (err != GLEW_OK) return OutErrorMessage((std::string("GLEW INIT ERROR:") + (char*)glewGetErrorString(err)).c_str());
 		glfwSwapInterval(1);
-		glfwSetWindowSizeCallback(window, windowSizeCallback);
 		glfwSetWindowUserPointer(window, (void*)this);
+		glfwSetWindowSizeCallback(window, windowSizeCallback);
+		glfwSetKeyCallback(window, windowKeyCallback);
 		return true;
 	}
 

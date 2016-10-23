@@ -120,7 +120,7 @@ bool TestApplication::Init() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LEQUAL);
 	wglSwapIntervalEXT(1);
 
 	return true;
@@ -200,7 +200,10 @@ bool TestApplication::Render() {
 void TestApplication::Resize(int w, int h){
 	glViewport(0, 0, w, h);
 	projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, 10000.0f, -10000.0f);
-	//glm::perspective(glm::radians(45.0f), (float)w / h, 0.1f, 100.0f);
+	//glm::vec3 tiltVector;
+	//tiltVector = glm::vec3(-1.0f, -1.0f, 1.0f) * zoom + lookAtCenter;
+	//viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));
+
 }
 
 int main(char* argv[], int argc) {
