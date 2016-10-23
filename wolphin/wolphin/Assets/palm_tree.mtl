@@ -12,5 +12,5 @@ newmtl Material__26
 	Kd 0.587999999523 0.587999999523 0.587999999523
 	Ks 0.000000000000 0.000000000000 0.000000000000
 	Ke 0.000000000000 0.000000000000 0.000000000000
-	map_Ka C:\Users\Fulons\Desktop\newtree\palmtree\Palm_trees.png
-	map_Kd C:\Users\Fulons\Desktop\newtree\palmtree\Palm_trees.png
+	map_Ka Assets\Palm_trees.png
+	map_Kd Assets\Palm_trees.png
