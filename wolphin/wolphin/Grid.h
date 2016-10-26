@@ -58,7 +58,7 @@ namespace wholphin {
 		void ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene* scene);
 	};
 
-	struct Entity {
+	struct Renderable {
 		glm::mat4 where;
 		MeshData* what;
 	};
@@ -73,21 +73,34 @@ namespace wholphin {
 		glm::vec2 pos;
 	};
 
+	struct MapEntity {
+		MeshData* what;
+		float mapValueStart;
+		float mapValueEnd;
+		float probability;
+	};
+
 	class Grid {
 	public:
-		Grid(glm::ivec2 size) : size(size){}
-		void Init();		
+		Grid(glm::ivec2 size) : size(size) { textureMixTextureData.resize(textureMixTextureSize.x * textureMixTextureSize.y); }
+		void Init();
+		void Init(std::vector<MapEntity>* mapEntities, std::vector<Texture>* tileTextures);
 		void Update(float frameNumberFraction, int funkyness);
-		void Draw(GLuint modelMatrixIndex, GLuint tex1loc, GLuint tex2loc, GLuint tex3loc);
+		void Draw(GLuint modelMatrixIndex);
 		void DrawEntities(GLuint modelMatrixIndex);
 	private:
 		glm::ivec2 size;
 		std::vector<Tile> tiles;
 		std::vector<glm::mat4> modelMatrix;
+
+		std::vector<MapEntity> mapEntities;
+		std::vector<Texture> tileTextures;
+
+		void InitBuffers();
+		void Populate();
 	private:
 		MeshData palmMesh;
 		MeshData bushMesh[6];
-		MeshData testMesh;
 		
 		Texture textureMap;
 		Texture textureMixTexture;
@@ -110,8 +123,12 @@ namespace wholphin {
 			};
 			Texture desShruberyTextures[5];
 		};
+
+		std::vector<unsigned char> textureMixTextureData;
+		glm::ivec2 textureMixTextureSize = glm::ivec2(2048, 2048);
+
 		std::vector<glm::ivec2> texturePos;
-		std::vector<Entity> entities;
+		std::vector<Renderable> renderables;
 		GLuint VBO;
 		GLuint CBO;
 		GLuint IBO;

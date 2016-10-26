@@ -12,7 +12,7 @@
 
 class TestApplication : public wholphin::Context {
 public:
-	TestApplication() : wholphin::Context(), grid(glm::ivec2(200, 200)){}
+	TestApplication() : wholphin::Context(), grid(glm::ivec2(100, 100)){}
 	virtual bool Init() override;
 	virtual bool Update(float dt) override;
 	virtual bool Render() override;
@@ -130,6 +130,7 @@ bool TestApplication::Update(float dt) {
 	//modelMatrix = glm::rotate(modelMatrix, dt, glm::vec3(0.0f, 0.0f, 1.0f));
 	const static float speed = 1000.0f;
 	bool zoomThisUpdate = false;
+	static bool wireframe = false;
 	if (inputHandler.IsDown('A')) {
 		lookAtCenter += glm::vec3(-1.0f, 1.0f, 0.0f) * dt * speed;
 	}
@@ -152,8 +153,9 @@ bool TestApplication::Update(float dt) {
 		zoomThisUpdate = true;
 	}
 	if (inputHandler.WentDownAtFrame(VK_SPACE, frameCount)) {
-		funkyness++;
-		if (funkyness > 7) funkyness = 1;
+		wireframe = !wireframe;
+		if (wireframe) glPolygonMode(GL_FRONT, GL_LINE);
+		else glPolygonMode(GL_FRONT, GL_FILL);
 	}
 	if (zoomThisUpdate) {
 		int w = GetClientWidth();
@@ -180,7 +182,7 @@ bool TestApplication::Render() {
 	glUniform1i(multiTexture3Location, 2);
 	glUniform1i(multiTexture4Location, 3);
 	glUniform1i(multiTexture5Location, 4);
-	grid.Draw(multiTextureModelMatrixLocation, multiTexture1Location, multiTexture2Location, multiTexture3Location);
+	grid.Draw(multiTextureModelMatrixLocation);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -199,7 +201,7 @@ bool TestApplication::Render() {
 
 void TestApplication::Resize(int w, int h){
 	glViewport(0, 0, w, h);
-	projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, 10000.0f, -10000.0f);
+	projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, -10000.0f, 10000.0f);
 	//glm::vec3 tiltVector;
 	//tiltVector = glm::vec3(-1.0f, -1.0f, 1.0f) * zoom + lookAtCenter;
 	//viewMatrix = glm::lookAt(tiltVector, lookAtCenter,  glm::vec3(1.0f, 1.0f, 0.0f));

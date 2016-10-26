@@ -4,7 +4,7 @@
 #include <soil\SOIL.h>
 #include "Utilities.h"
 #include "Noise.h"
-
+#include <algorithm>
 
 namespace wholphin {
 
@@ -234,18 +234,17 @@ namespace wholphin {
 	}
 
 	void Grid::Init() {
-		testMesh.Init("Assets\\temple.obj");
 		palmMesh.Init("Assets\\palmScaleTest.obj");
 		desGround00 = LoadTexture("Assets\\des_ground00.png");
 		desGround01 = LoadTexture("Assets\\des_ground01.png");
 		desGround02 = LoadTexture("Assets\\des_ground02.png");
 		desGround03 = LoadTexture("Assets\\des_ground03.png");
 		Texture bushTexture = LoadTexture("Assets\\shrub_00.png", SOIL_LOAD_RGBA);
-		desShrub00 = LoadTexture("Assets\\des_shrub00.png", SOIL_LOAD_RGBA);
-		desShrub01 = LoadTexture("Assets\\des_shrub01.png", SOIL_LOAD_RGBA);
-		desShrub02 = LoadTexture("Assets\\des_shrub02.png", SOIL_LOAD_RGBA);
-		desShrub03 = LoadTexture("Assets\\des_shrub03.png", SOIL_LOAD_RGBA);
-		desShrub04 = LoadTexture("Assets\\des_shrub04.png", SOIL_LOAD_RGBA);
+		desShrub00 = LoadTexture("Assets\\des_shrub00.dds", SOIL_LOAD_RGBA);
+		desShrub01 = LoadTexture("Assets\\des_shrub01.dds", SOIL_LOAD_RGBA);
+		desShrub02 = LoadTexture("Assets\\des_shrub02.dds", SOIL_LOAD_RGBA);
+		desShrub03 = LoadTexture("Assets\\des_shrub03.dds", SOIL_LOAD_RGBA);
+		desShrub04 = LoadTexture("Assets\\des_shrub04.dds", SOIL_LOAD_RGBA);
 		bushMesh[0].InitBillboard(glm::vec2(25.0f, 25.0f), bushTexture);
 		bushMesh[1].InitBillboard(glm::vec2(25.0f, 25.0f), desShrub00);
 		bushMesh[2].InitBillboard(glm::vec2(25.0f, 25.0f), desShrub01);
@@ -253,27 +252,18 @@ namespace wholphin {
 		bushMesh[4].InitBillboard(glm::vec2(20.0f, 20.0f), desShrub03);
 		bushMesh[5].InitBillboard(glm::vec2(15.0f, 15.0f), desShrub04);
 
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(4950.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-		entities.push_back(Entity{ model, &palmMesh });
+
+
+
 
 		std::vector<glm::vec2> UVs = {
 			glm::vec2(0.0f, 0.0f),
 			glm::vec2(1.0f, 0.0f),
 			glm::vec2(1.0f, 1.0f),
 			glm::vec2(0.0f, 1.0f)};
-		//UVs.resize(4 * 4 * 4);
+
 		float factor = 0.0f;
-		//for (unsigned x = 0; x < 4; x++) {
-		//	for (unsigned y = 0; y < 4; y++) {
-		//		UVs[(x + (y * 4)) * 4 + 0] = glm::vec2( x / 4.0f + factor,			 y / 4.0f + factor);
-		//		UVs[(x + (y * 4)) * 4 + 1] = glm::vec2((x + 1) / 4.0f - factor,		 y / 4.0f + factor);
-		//		UVs[(x + (y * 4)) * 4 + 2] = glm::vec2((x + 1) / 4.0f - factor,		(y + 1) / 4.0f - factor);
-		//		UVs[(x + (y * 4)) * 4 + 3] = glm::vec2( x / 4.0f + factor,			(y + 1) / 4.0f - factor);
-		//	}
-		//}
+
 
 		std::vector<glm::vec2> UV2s;
 		UV2s.resize(size.x * size.y * 4);
@@ -284,15 +274,16 @@ namespace wholphin {
 				UV2s[(x + (y * size.x)) * 4 + 2] = glm::vec2((x + 1) / (float)size.x - factor,	(y + 1) / (float)size.y - factor);
 				UV2s[(x + (y * size.x)) * 4 + 3] = glm::vec2( x / (float)size.x + factor,		(y + 1) / (float)size.y - factor);
 			}
-		}
+		}		
+		
+		tiles.resize(size.x * size.y);
+		modelMatrix.resize(size.x * size.y);
 
-		std::vector<unsigned char> textureMixTextureData;
-		glm::ivec2 textureMixTextureSize(2048, 2048);
-		textureMixTextureData.resize(textureMixTextureSize.x * textureMixTextureSize.y);
 		unsigned int dataMAX = 0;
 		unsigned int dataMIN = 255;
 		float flMAX = -10;
 		float flMIN = 10;
+		glm::vec2 sizeDiff = (glm::vec2)size / (glm::vec2)textureMixTextureSize;
 		for (unsigned x = 0; x < textureMixTextureSize.x; x++) {
 			for (unsigned y = 0; y < textureMixTextureSize.y; y++) {
 				glm::vec2 perlinPos = glm::vec2((x - textureMixTextureSize.x / 2.0f), (y - textureMixTextureSize.y / 2.0f)) / (glm::vec2)textureMixTextureSize;
@@ -301,13 +292,14 @@ namespace wholphin {
 				pn += (Perlin(perlinPos * 50.0f) + 1) * 0.5f;
 				pn /= 2.5f;
 				if (pn > flMAX) flMAX = pn;	//0.92410982
-				if (pn < flMIN) flMIN = pn;	//0.122145057
-				
+				if (pn < flMIN) flMIN = pn;	//0.122145057				
 				//if (pn < 1.0f / 12.0f) pn = 0;
 				//else if (pn < 1.0f / 12.0f) pn = 0;
 				//else if (pn < 1.0f / 12.0f) pn = 0;
 				//else if (pn < 1.0f / 12.0f) pn = 0;
 				pn -= 0.5f;
+				tiles[((int)(x * sizeDiff.x) + ((int)(y * sizeDiff.y) * size.x))] = Tile((int)(pn * 8), glm::vec2((int)(x * sizeDiff.x) - size.x / 2, (int)(y * sizeDiff.y) - size.y / 2));
+				modelMatrix[((int)(x * sizeDiff.x) + ((int)(y * sizeDiff.y) * size.x))] = glm::scale(glm::mat4(), glm::vec3(200.0f, 200.0f, 200.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[((int)(x * sizeDiff.x) + ((int)(y * sizeDiff.y) * size.x))].pos, 0.0f));
 				unsigned int data = (unsigned int)(pn * 255.0f);
 				if (data > dataMAX) dataMAX = data;	//235
 				if (data < dataMIN) dataMIN = data;	//31
@@ -318,33 +310,31 @@ namespace wholphin {
 
 		textureMixTexture = MakeTexture(textureMixTextureData.data(), textureMixTextureSize, 1);		
 
-		textureMap = LoadTexture("tileMap.png");
-		modelMatrix.resize(size.x * size.y);
-		tiles.resize(size.x * size.y);
+		
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
-				glm::vec2 perlinPos = glm::vec2(x - size.x / 2.0f, y - size.y / 2.0f) / (glm::vec2)size;
-				float pn = (Perlin(perlinPos * 20.0f) + 1) * 0.5f;
-				pn += (Perlin(perlinPos * 3.0f) + 1) * 1.5f;
-				pn += (Perlin(perlinPos * 50.0f) + 1) * 0.5f;
-				pn /= 2.5f;
-				int tileType = (int)(pn * 8);
-				tiles[x + (y * size.x)] = Tile(tileType, glm::vec2(x - size.x / 2, y - size.y / 2));
-				modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 50.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
-				int treeAndBushRand = rand() % 16;
-				if ((tileType == 4 || tileType == 5) && (treeAndBushRand == 5 || treeAndBushRand == 3 || treeAndBushRand == 2)) {
-					float randScale = (rand() % 100) / 100.0f + 0.5f;
+				//glm::vec2 perlinPos = glm::vec2(x - size.x / 2.0f, y - size.y / 2.0f) / (glm::vec2)size;
+				//float pn = (Perlin(perlinPos * 10.0f) + 1) * 0.5f;
+				//pn += (Perlin(perlinPos * 1.5f) + 1) * 1.5f;
+				//pn += (Perlin(perlinPos * 25.0f) + 1) * 0.5f;
+				//pn /= 2.5f;
+				int tileType = tiles[x + (y * size.x)].type;//(int)(pn * 8);
+				//tiles[x + (y * size.x)] = Tile(tileType, glm::vec2(x - size.x / 2, y - size.y / 2));
+				//modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(200.0f, 200.0f, 200.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
+				int treeAndBushRand = rand() % 6;
+				if ((tileType == 4 || tileType == 5 || tileType == 6) && (treeAndBushRand == 5 || treeAndBushRand == 3 || treeAndBushRand == 2)) {
+					float randScale = rand() / (float)RAND_MAX + 0.5f;
 					glm::mat4 model(1);
-					glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos * 50.0f, 0.0f));
+					glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos * 200.0f, 0.0f));
 					glm::mat4 rotate = glm::rotate(glm::mat4(), (float)((rand() % 100) / 100.0f * glm::pi<float>()), glm::vec3(0.0f, 0.0f, 1.0f));
 					glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(10.0f * randScale, 10.0f * randScale, 10.0f * randScale));
 					model = translate * rotate * scale;
 					if(treeAndBushRand == 5)
-						entities.push_back(Entity{ model, &palmMesh });
+						renderables.push_back(Renderable{ model, &palmMesh });
 					scale = glm::scale(glm::mat4(), glm::vec3(6.0f * randScale, 6.0f * randScale, 6.0f * randScale));
 					model = translate * scale;
 					if (treeAndBushRand != 5) {						
-						entities.push_back(Entity{ model, &bushMesh[rand() % 6] });
+						renderables.push_back(Renderable{ model, &bushMesh[rand() % 6] });
 					}
 				}
 			}
@@ -393,6 +383,14 @@ namespace wholphin {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		CheckGLError();
+	}
+
+	void Grid::Init(std::vector<MapEntity>* mapEntities, std::vector<Texture>* tileTextures) {
+		
+		this->mapEntities.swap(*mapEntities);
+		this->tileTextures.swap(*tileTextures);
+
+		InitBuffers();		
 	}
 
 	void Grid::Update(float frameNumberFraction, int funkyness)	{
@@ -444,9 +442,7 @@ namespace wholphin {
 		//}
 	}
 
-	void Grid::Draw(GLuint modelMatrixIndex, GLuint tex1loc, GLuint tex2loc, GLuint tex3loc) {
-		
-
+	void Grid::Draw(GLuint modelMatrixIndex) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, desGround00.ID);
 		glActiveTexture(GL_TEXTURE1);
@@ -462,10 +458,6 @@ namespace wholphin {
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (GLvoid*)0);
-
-			glBindBuffer(GL_ARRAY_BUFFER, CBO);
-			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(sizeof(glm::vec3) * tiles[i].type * 4));
 
 			glBindBuffer(GL_ARRAY_BUFFER, TBO);
 			glEnableVertexAttribArray(3);
@@ -486,19 +478,132 @@ namespace wholphin {
 
 	void Grid::DrawEntities(GLuint modelMatrixIndex){
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, testMesh.GetTextureID());
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(2500.0f, -2200.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &model[0][0]);
-		testMesh.Draw();
-		for (int i = entities.size() - 1; i > -1; i--) {
-			glBindTexture(GL_TEXTURE_2D, entities[i].what->GetTextureID());
-			glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &entities[i].where[0][0]);
-			entities[i].what->Draw();
+		for (int i = renderables.size() - 1; i > -1; i--) {
+			glBindTexture(GL_TEXTURE_2D, renderables[i].what->GetTextureID());
+			glUniformMatrix4fv(modelMatrixIndex, 1, GL_FALSE, &renderables[i].where[0][0]);
+			renderables[i].what->Draw();
 		}
 		
+	}
+
+	void Grid::InitBuffers(){
+		std::vector<glm::vec2> UVs = {
+			glm::vec2(0.0f, 0.0f),
+			glm::vec2(1.0f, 0.0f),
+			glm::vec2(1.0f, 1.0f),
+			glm::vec2(0.0f, 1.0f)};
+
+		float factor = 0.0f;
+		std::vector<glm::vec2> UV2s;
+		UV2s.resize(size.x * size.y * 4);
+		for (unsigned x = 0; x < size.x; x++) {
+			for (unsigned y = 0; y < size.y; y++) {
+				UV2s[(x + (y * size.x)) * 4 + 0] = glm::vec2( x / (float)size.x + factor,		 y / (float)size.y + factor);
+				UV2s[(x + (y * size.x)) * 4 + 1] = glm::vec2((x + 1) / (float)size.x - factor,	 y / (float)size.y + factor);
+				UV2s[(x + (y * size.x)) * 4 + 2] = glm::vec2((x + 1) / (float)size.x - factor,	(y + 1) / (float)size.y - factor);
+				UV2s[(x + (y * size.x)) * 4 + 3] = glm::vec2( x / (float)size.x + factor,		(y + 1) / (float)size.y - factor);
+			}
+		}		
+
+		unsigned int dataMAX = 0;
+		unsigned int dataMIN = 255;
+		float flMAX = -10;
+		float flMIN = 10;
+		tiles.resize(size.x * size.y);
+		modelMatrix.resize(size.x * size.y);
+		glm::vec2 sizeDiff = (glm::vec2)size / (glm::vec2)textureMixTextureSize;
+		for (unsigned x = 0; x < textureMixTextureSize.x; x++) {
+			for (unsigned y = 0; y < textureMixTextureSize.y; y++) {
+				glm::vec2 perlinPos = glm::vec2((x - textureMixTextureSize.x / 2.0f), (y - textureMixTextureSize.y / 2.0f)) / (glm::vec2)textureMixTextureSize;
+				float pn = (Perlin(perlinPos * 20.0f) + 1) * 0.5f;
+				pn += (Perlin(perlinPos * 3.0f) + 1) * 1.5f;
+				pn += (Perlin(perlinPos * 50.0f) + 1) * 0.5f;
+				pn /= 2.5f;
+				pn -= 0.5f;
+				//TODO: setup tiles in the populate loop
+				tiles[((int)(x * sizeDiff.x) + ((int)(y * sizeDiff.y) * size.x))] = Tile((int)(pn * 8), glm::vec2((int)(x * sizeDiff.x) - size.x / 2, (int)(y * sizeDiff.y) - size.y / 2));
+				unsigned int data = (unsigned int)(pn * 255.0f);
+				textureMixTextureData[x + (y * textureMixTextureSize.x)] = data;
+			}
+		}
+
+		textureMixTexture = MakeTexture(textureMixTextureData.data(), textureMixTextureSize, 1);	
+
+		Vertex2D vertices[] = {
+			glm::vec2(-0.5f, -0.5f),
+			glm::vec2(+0.5f, -0.5f),
+			glm::vec2(+0.5f, +0.5f),
+			glm::vec2(-0.5f, +0.5f)
+		};
+
+		GLuint indices[] = { 0, 1, 2,
+			0, 2, 3};
+
+		glGenBuffers(1, &VBO);
+		glGenBuffers(1, &IBO);
+		glGenBuffers(1, &CBO);
+		glGenBuffers(1, &TBO);
+		glGenBuffers(1, &TBO2);
+
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (GLvoid*)0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, CBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(tileColours), tileColours, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, TBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * UVs.size(), UVs.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, TBO2);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * UV2s.size(), UV2s.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		CheckGLError();
+	}
+
+	void Grid::Populate(){
+
+		glm::vec2 sizeDiff =  (glm::vec2)textureMixTextureSize / (glm::vec2)size;
+		
+		std::vector<MapEntity*> possibleEntities;
+
+		for (int x = 0; x < size.x; x++) {
+			for (int y = 0; y < size.y; y++) {		  //this might break...	  + 0.5f						   + 0.5f
+				//tiles[x + (y * size.x)] = Tile(textureMixTextureData[(int)((x + 0.5f) * sizeDiff.x) + (int)((y + 0.5f) * sizeDiff.y) * textureMixTextureSize.y], glm::vec2(x - size.x / 2, y - size.y / 2));
+				modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(200.0f, 200.0f, 200.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
+
+				int tileType = tiles[x + (y * size.x)].type;
+				int treeAndBushRand = rand() % 6;
+				if ((tileType == 4 || tileType == 5 || tileType == 6) && (treeAndBushRand == 5 || treeAndBushRand == 3 || treeAndBushRand == 2)) {
+					float randScale = rand() / (float)RAND_MAX + 0.5f;
+					glm::mat4 model(1);
+					glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos * 200.0f, 0.0f));
+					glm::mat4 rotate = glm::rotate(glm::mat4(), (float)((rand() % 100) / 100.0f * glm::pi<float>()), glm::vec3(0.0f, 0.0f, 1.0f));
+					glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(10.0f * randScale, 10.0f * randScale, 10.0f * randScale));
+					model = translate * rotate * scale;
+					if(treeAndBushRand == 5)
+						renderables.push_back(Renderable{ model, &palmMesh });
+					scale = glm::scale(glm::mat4(), glm::vec3(6.0f * randScale, 6.0f * randScale, 6.0f * randScale));
+					model = translate * scale;
+					if (treeAndBushRand != 5) {						
+						renderables.push_back(Renderable{ model, &bushMesh[rand() % 6] });
+					}
+				}
+			}
+		}
 	}
 
 }
