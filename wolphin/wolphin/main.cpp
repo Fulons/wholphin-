@@ -58,6 +58,30 @@ struct Vertex {
 
 bool TestApplication::Init() {
 	Context::Init();
+
+	std::vector<wholphin::MapEntity> mapEntities;
+	wholphin::MapEntity entity;
+	wholphin::Texture bushTexture = wholphin::LoadTexture("Assets\\shrub_00.png", 4);
+	wholphin::Texture desShrub00 = wholphin::LoadTexture("Assets\\des_shrub00.dds", 4);
+	wholphin::Texture desShrub01 = wholphin::LoadTexture("Assets\\des_shrub01.dds", 4);
+	wholphin::Texture desShrub02 = wholphin::LoadTexture("Assets\\des_shrub02.dds", 4);
+	wholphin::Texture desShrub03 = wholphin::LoadTexture("Assets\\des_shrub03.dds", 4);
+	wholphin::Texture desShrub04 = wholphin::LoadTexture("Assets\\des_shrub04.dds", 4);
+	wholphin::MeshData bushMesh[6];
+	bushMesh[0].InitBillboard(glm::vec2(25.0f, 25.0f), bushTexture);
+	bushMesh[1].InitBillboard(glm::vec2(25.0f, 25.0f), desShrub00);
+	bushMesh[2].InitBillboard(glm::vec2(25.0f, 25.0f), desShrub01);
+	bushMesh[3].InitBillboard(glm::vec2(25.0f, 25.0f), desShrub02);
+	bushMesh[4].InitBillboard(glm::vec2(20.0f, 20.0f), desShrub03);
+	bushMesh[5].InitBillboard(glm::vec2(15.0f, 15.0f), desShrub04);
+	std::vector<wholphin::Texture> tileTextures;
+	tileTextures.push_back(wholphin::LoadTexture("Assets\\des_ground00.png"));
+	tileTextures.push_back(wholphin::LoadTexture("Assets\\des_ground01.png"));
+	tileTextures.push_back(wholphin::LoadTexture("Assets\\des_ground02.png"));
+	tileTextures.push_back(wholphin::LoadTexture("Assets\\des_ground03.png"));
+	grid.Init(&mapEntities, &tileTextures);
+
+
 	modelMatrix = glm::mat4(100.0f);
 	modelMatrix[3][3] = 1.0f;
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(30.0f, 0.0f, -1.0f));
@@ -161,6 +185,7 @@ bool TestApplication::Update(float dt) {
 		int w = GetClientWidth();
 		int h = GetClientHeight();
 		projectionMatrix = glm::ortho(-w/2.0f * zoom, w/2.0f * zoom, -h/2.0f * zoom, h/2.0f * zoom, -10000.0f, 10000.0f);
+		//projectionMatrix = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 10000.0f, 1.0f);
 	}
 
 	grid.Update(frameCount / 200.0f, funkyness);

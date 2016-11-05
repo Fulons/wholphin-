@@ -20,8 +20,8 @@ namespace wholphin {
 	Context::Context(HINSTANCE hInstance) {
 		if (hInstance) hAppInstance = hInstance;
 		else		   hAppInstance = GetModuleHandle(NULL);
-		clientWidth = 800;
-		clientHeight = 600;
+		clientWidth = 1600;
+		clientHeight = 900;
 		appTitle = "OPENGL EXAMPLE";
 		windowStyle = WS_OVERLAPPED | WS_SIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
 		g_Context = this;

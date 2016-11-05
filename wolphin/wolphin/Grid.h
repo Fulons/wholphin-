@@ -2,68 +2,15 @@
 #include <glm\glm.hpp>
 #include <vector>
 #include <GL\glew.h>
-#include <assimp\Importer.hpp>
-#include <assimp\scene.h>
-#include <assimp\postprocess.h>
+
+#include "RenderData.h"
 
 namespace wholphin {
-
-	struct Texture {
-		int width;
-		int height;
-		GLuint ID;
-	};
-
-	struct Vertex2D {
-		glm::vec2 pos;
-	};
-
-	struct Vertex3D {
-		glm::vec2 texCoords;
-		glm::vec3 pos;
-	};
-
-	struct Buffer {
-		GLuint VBO;
-		GLuint IBO;
-		GLuint VAO;
-	};
-
-	struct SubMeshData {
-		std::vector<Vertex3D> vertices;
-		std::vector<GLuint> indices;
-		Texture texture;
-		GLuint indexOffset;
-	};	
-
-	class MeshData {
-	public:
-		bool Init(const char* filename);
-		void InitBillboard(glm::vec2 size, Texture texture);
-		void Draw();
-		GLuint GetTextureID() {
-			return subMeshes[0].texture.ID;
-		}
-		GLuint GetNumIndices() { return numIndices; }
-	private:
-		GLuint numIndices;
-		void MakeBuffer();
-		bool isInitialized = false;
-		std::vector<SubMeshData> subMeshes;
-		Buffer buffer;
-
-	private:
-		aiString directory;
-		void ProcessNode(aiNode* node, const aiScene* scene);
-		void ProcessMesh(SubMeshData& subMesh, aiMesh* mesh, const aiScene* scene);
-	};
 
 	struct Renderable {
 		glm::mat4 where;
 		MeshData* what;
-	};
-
-	Texture LoadTexture(const char* file, int forceChannels = 3/*RGB*/);
+	};	
 
 	class Tile {
 	public:
@@ -87,6 +34,7 @@ namespace wholphin {
 		void Init(std::vector<MapEntity>* mapEntities, std::vector<Texture>* tileTextures);
 		void Update(float frameNumberFraction, int funkyness);
 		void Draw(GLuint modelMatrixIndex);
+		void Draw2(GLuint modelMatrixIndex);
 		void DrawEntities(GLuint modelMatrixIndex);
 	private:
 		glm::ivec2 size;

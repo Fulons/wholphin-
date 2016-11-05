@@ -51,7 +51,7 @@ namespace wholphin {
 	glm::ivec3 fastFloor(glm::vec3 x) { return glm::ivec3(fastFloor(x.x), fastFloor(x.y), fastFloor(x.z)); }
 	float lerp(float a, float b, float t) { return (1 - t)*a + b * t; }
 	float fade(float x) { return x*x*x*(x*(x * 6 - 15) + 10); }
-
+		
 	float Perlin(glm::vec2 in)	{
 		glm::ivec2 floor = fastFloor(in);
 		glm::vec2 relative = in - (glm::vec2)floor;
