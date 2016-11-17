@@ -234,6 +234,7 @@ void TestApplication::Resize(int w, int h){
 }
 
 int main(char* argv[], int argc) {
+	//Test change
 	TestApplication test;
 	test.Init();
 	int result =  test.Run();
