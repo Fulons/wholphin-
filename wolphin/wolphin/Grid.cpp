@@ -108,10 +108,6 @@ namespace wholphin {
 		bushMesh[4].InitBillboard(glm::vec2(20.0f, 20.0f), desShrub03);
 		bushMesh[5].InitBillboard(glm::vec2(15.0f, 15.0f), desShrub04);
 
-
-
-
-
 		std::vector<glm::vec2> UVs = {
 			glm::vec2(0.0f, 0.0f),
 			glm::vec2(1.0f, 0.0f),
@@ -166,6 +162,7 @@ namespace wholphin {
 
 		textureMixTexture = MakeTexture(textureMixTextureData.data(), textureMixTextureSize, 1);		
 
+
 		
 		for (int x = 0; x < size.x; x++) {
 			for (int y = 0; y < size.y; y++) {
@@ -175,6 +172,14 @@ namespace wholphin {
 				//pn += (Perlin(perlinPos * 25.0f) + 1) * 0.5f;
 				//pn /= 2.5f;
 				int tileType = tiles[x + (y * size.x)].type;//(int)(pn * 8);
+				std::vector<MapEntity*> possibleEntities;
+				for (auto& entity : mapEntities){
+					if ((entity.mapValueStart > tileType) &&
+						(entity.mapValueEnd < tileType)){
+						possibleEntities.push_back(&entity);
+					}
+				}
+
 				//tiles[x + (y * size.x)] = Tile(tileType, glm::vec2(x - size.x / 2, y - size.y / 2));
 				//modelMatrix[x + (y * size.x)] = glm::scale(glm::mat4(), glm::vec3(200.0f, 200.0f, 200.0f)) * glm::translate(glm::mat4(), glm::vec3(tiles[x + (y * size.x)].pos, 0.0f));
 				int treeAndBushRand = rand() % 6;
