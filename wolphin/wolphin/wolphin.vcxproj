@@ -161,6 +161,7 @@ xcopy "$(SolutionDir)middleware\assimp\lib\assimp.dll" "$(SolutionDir)$(Configur
     <ClCompile Include="RenderData.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Utilities.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h" />
@@ -170,6 +171,7 @@ xcopy "$(SolutionDir)middleware\assimp\lib\assimp.dll" "$(SolutionDir)$(Configur
     <ClInclude Include="RenderData.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\entityfs.glsl" />

@@ -43,6 +43,9 @@ namespace wholphin {
 		bool Init(const char* filename);
 		void InitBillboard(glm::vec2 size, Texture texture);
 		void Draw();
+		void DrawInitialized();
+		void BindBuffers();
+		void UnbindBuffers();
 		GLuint GetTextureID() {
 			return subMeshes[0].texture.ID;
 		}

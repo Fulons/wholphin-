@@ -58,10 +58,22 @@ namespace wholphin {
 	}
 
 	void MeshData::Draw(){
+		BindBuffers();
+		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, NULL);
+		UnbindBuffers();
+	}
+
+	void MeshData::DrawInitialized() {
+		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, NULL);
+	}
+
+	void MeshData::BindBuffers(){
 		glBindVertexArray(buffer.VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, buffer.VBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IBO);
-		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, NULL);
+	}
+
+	void MeshData::UnbindBuffers(){
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
