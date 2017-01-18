@@ -4,6 +4,32 @@
 
 namespace wholphin {
 
+	Texture MakeTexture(unsigned char* data, glm::ivec2 size, unsigned channels) {
+		Texture ret;
+		ret.width = size.x;
+		ret.height = size.y;
+		glGenTextures(1, &ret.ID);
+		glBindTexture(GL_TEXTURE_2D, ret.ID);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		GLint format = GL_RGB;
+		switch (channels) {
+		case 1: format = GL_RED; break;
+		case 2: format = GL_RG; break;
+		case 3: format = GL_RGB; break;
+		case 4: format = GL_RGBA; break;
+		}
+
+
+		glTexImage2D(GL_TEXTURE_2D, 0, format, ret.width, ret.height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		return ret;
+	}	
+
 	Texture LoadTexture(const char * file, int forceChannels){
 		Texture ret;
 		int channels = 0;
@@ -43,6 +69,16 @@ namespace wholphin {
 		}
 		directory = file.substr(0, file.find_last_of('\\'));
 		ProcessNode(scene->mRootNode, scene);
+		MakeBuffer();
+	}
+
+	void MeshData::InitRect(glm::vec2 size){
+		subMeshes.push_back(SubMeshData());
+		subMeshes[0].vertices.push_back(Vertex3D( glm::vec2(), glm::vec3() ));
+		subMeshes[0].vertices.push_back(Vertex3D( glm::vec2(1.0f, 0.0f), glm::vec3(size.x, 0.0f, 0.0f) ));
+		subMeshes[0].vertices.push_back(Vertex3D( glm::vec2(1.0f, 1.0f), glm::vec3(size.x, size.y, 0.0f) ));
+		subMeshes[0].vertices.push_back(Vertex3D( glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, size.y, 0.0f) ));
+		subMeshes[0].indices = { 0, 1, 2, 0, 2, 3 };
 		MakeBuffer();
 	}
 

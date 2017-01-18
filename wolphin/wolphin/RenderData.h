@@ -15,12 +15,15 @@ namespace wholphin {
 		GLuint ID;
 	};
 	Texture LoadTexture(const char* file, int forceChannels = 3/*RGB*/);
+	Texture MakeTexture(unsigned char* data, glm::ivec2 size, unsigned channels = 3);
 
 	struct Vertex2D {
 		glm::vec2 pos;
 	};
 
 	struct Vertex3D {
+		Vertex3D() {}
+		Vertex3D(glm::vec2 texCoords, glm::vec3 pos) : texCoords(texCoords), pos(pos) {}
 		glm::vec2 texCoords;
 		glm::vec3 pos;
 	};
@@ -41,6 +44,7 @@ namespace wholphin {
 	class MeshData {
 	public:
 		bool Init(const char* filename);
+		void InitRect(glm::vec2 size);
 		void InitBillboard(glm::vec2 size, Texture texture);
 		void Draw();
 		void DrawInitialized();

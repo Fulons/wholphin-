@@ -63,32 +63,6 @@ namespace wholphin {
 		glm::vec3(0.0f, 0.5f, 0.0f), //dark green
 	};	
 
-	Texture MakeTexture(unsigned char* data, glm::ivec2 size, unsigned channels = 3) {
-		Texture ret;
-		ret.width = size.x;
-		ret.height = size.y;
-		glGenTextures(1, &ret.ID);
-		glBindTexture(GL_TEXTURE_2D, ret.ID);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		GLint format = GL_RGB;
-		switch (channels) {
-		case 1: format = GL_RED; break;
-		case 2: format = GL_RG; break;
-		case 3: format = GL_RGB; break;
-		case 4: format = GL_RGBA; break;
-		}
-
-
-		glTexImage2D(GL_TEXTURE_2D, 0, format, ret.width, ret.height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		return ret;
-	}	
-
 	void Grid::Init() {
 		palmMesh.Init("Assets\\palmScaleTest.obj");
 		desGround00 = LoadTexture("Assets\\des_ground00.png");
@@ -108,10 +82,6 @@ namespace wholphin {
 		bushMesh[4].InitBillboard(glm::vec2(20.0f, 20.0f), desShrub03);
 		bushMesh[5].InitBillboard(glm::vec2(15.0f, 15.0f), desShrub04);
 
-
-
-
-
 		std::vector<glm::vec2> UVs = {
 			glm::vec2(0.0f, 0.0f),
 			glm::vec2(1.0f, 0.0f),
@@ -119,7 +89,6 @@ namespace wholphin {
 			glm::vec2(0.0f, 1.0f)};
 
 		float factor = 0.0f;
-
 
 		std::vector<glm::vec2> UV2s;
 		UV2s.resize(size.x * size.y * 4);

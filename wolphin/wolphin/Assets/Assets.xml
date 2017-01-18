@@ -1,0 +1,11 @@
+<?xml version="1.0">
+<Biome type="sand">
+	<Tiles path="Assets\Tiles">
+		<Tile name="des_ground00" imgformat="dds"/>
+		<Tile name="des_water" imgformat="dds"/>
+	</Tiles>
+	<Entities path="Assets\Entities">
+		<Entity name="PalmTree" type="tree" format="obj"/>
+		<Entity name="Shrub00" type="bush" format="png"/>
+	</Entities>
+</Biome>

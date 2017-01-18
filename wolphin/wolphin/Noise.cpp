@@ -113,4 +113,19 @@ namespace wholphin {
 
 		return lerp(xyInterpolated0, xyInterpolated1, w);
 	}
+
+	float Simplex(glm::vec2 in) {
+		float n0, n1, n2;
+		static float f2 = 0.5f * (sqrt(3.0f) - 1.0f);
+		float s = (in.x + in.y);
+		glm::ivec2 floor = fastFloor(glm::vec2(in.x + s, in.y + s));
+		static float g2 = (3.0f - sqrt(3.0f)) / 6.0f;
+		float t = (floor.x + floor.y) * g2;
+		float X0 = floor.x - t;
+		float Y0 = floor.y - t;
+		float x0 = in.x - X0;
+		float y0 = in.y - Y0;
+		//TODO: finish the algorithm
+		return -10000;
+	}
 }
